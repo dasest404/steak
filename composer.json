@@ -1,0 +1,24 @@
+{
+    "name": "parsnick/steak",
+    "description": "Static site generator using blade syntax and gh-pages",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nick",
+            "email": "nick.dev@mailingaddress.org"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Parsnick\\Steak\\": "src"
+        }
+    },
+    "require": {
+        "symfony/console": "^3.0",
+        "illuminate/view": "^5.2",
+        "illuminate/filesystem": "^5.2"
+    },
+    "bin": [
+        "steak"
+    ]
+}
