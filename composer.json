@@ -2,6 +2,7 @@
     "name": "parsnick/steak",
     "description": "Static site generator using blade syntax and gh-pages",
     "license": "MIT",
+    "version": "1.0.0-dev",
     "authors": [
         {
             "name": "Nick",
@@ -13,12 +14,20 @@
             "Parsnick\\Steak\\": "src"
         }
     },
-    "require": {
-        "symfony/console": "^3.0",
-        "illuminate/view": "^5.2",
-        "illuminate/filesystem": "^5.2"
-    },
     "bin": [
         "steak"
-    ]
+    ],
+    "require": {
+        "illuminate/filesystem": "^5.2",
+        "illuminate/pipeline": "^5.2",
+        "illuminate/view": "^5.2",
+        "symfony/console": "^3.0",
+        "symfony/stopwatch": "^3.0"
+    },
+    "require-dev": {
+        "mikey179/vfsStream": "^1.6",
+        "phpspec/phpspec": "^2.4",
+        "phpunit/phpunit": "^5.2",
+        "raveren/kint": "^1.0"
+    }
 }
