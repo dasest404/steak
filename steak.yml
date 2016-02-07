@@ -1,5 +1,2 @@
 source: tests/fixtures/site
 output: build
-pipeline:
-  - skip:_*
-  - blade
