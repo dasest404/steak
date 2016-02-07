@@ -1,6 +1,9 @@
 {
   "devDependencies": {
     "gulp": "^3.9.0",
-    "gulp-phpunit": "^0.12.1"
+    "gulp-filter": "^3.0.1",
+    "gulp-phpunit": "^0.12.1",
+    "gulp-print": "^2.0.1",
+    "yargs": "^3.32.0"
   }
 }
