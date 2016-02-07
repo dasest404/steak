@@ -3,8 +3,13 @@
 namespace Parsnick\Steak;
 
 use Illuminate\Config\Repository;
-use Illuminate\Contracts\Container\Container;
+use Illuminate\Container\Container;
+use Illuminate\Filesystem\Filesystem;
+use Parsnick\Steak\Publishers\CompileBlade;
+use Parsnick\Steak\Publishers\SkipExcluded;
 use Symfony\Component\Console\Application as SymfonyApplication;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Yaml\Yaml;
 
 class Application
 {
@@ -21,15 +26,54 @@ class Application
     /**
      * Create a new steak application.
      *
-     * @param Container $container
      * @param string $version
+     * @param Container $container
      */
-    public function __construct(Container $container, $version)
+    public function __construct($version, Container $container = null)
     {
         $this->symfony = new SymfonyApplication('Steak', $version);
-        $this->container = $container;
+        $this->container = $container ?: new Container();
 
-        $this->container->singleton(Config::class, Repository::class);
+        $this->registerDefaultBindings($this->container);
+    }
+
+    /**
+     * @param Container $app
+     */
+    protected function registerDefaultBindings(Container $app)
+    {
+        $app->singleton('files', Filesystem::class);
+
+        $app->singleton('config', function ($app) {
+
+            $config = new Repository([
+                'pipeline' => [
+                    'skip:_*',
+                    'blade',
+                ],
+                'source' => 'source',
+                'output' => 'build',
+            ]);
+
+            $option = (new ArgvInput())->getParameterOption(['--config', '-c']);
+
+            if ( ! $option && $app['files']->exists('steak.yml')) {
+                $option = 'steak.yml';
+            }
+
+            foreach (explode(',', $option) as $file) {
+                $config->set(Yaml::parse($app['files']->get($file)));
+            }
+
+            return $config;
+        });
+
+        $app->bind(Builder::class, function ($app) {
+            return new Builder($app, $app['config']->get('pipeline'));
+        });
+
+        $app->bind('skip', SkipExcluded::class);
+        $app->bind('blade', CompileBlade::class);
     }
 
     /**

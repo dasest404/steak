@@ -1,32 +1,25 @@
 #!/usr/bin/env php
 <?php
 
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
+
 if (file_exists(__DIR__.'/../../autoload.php')) {
     require __DIR__.'/../../autoload.php';
 } else {
     require __DIR__.'/vendor/autoload.php';
 }
 
-$steak = new Parsnick\Steak\Application(new Illuminate\Container\Container(), '1.0.0');
-
-
-/*
-$steak->bootstrap([
-    // ReadConfig
-]);
-
-$steak->pipeline([
-    // SkipUnderscored
-    // CompileBlade
-    // CompilePhp
-]);*/
+$steak = new Parsnick\Steak\Application('1.0.0');
 
 $steak->commands([
-    // InitCommand
     Parsnick\Steak\Console\BuildCommand::class,
-    // ServeCommand
-    // SyncCommand (pull)
-    // DeployCommand (push)
 ]);
 
 $steak->run();
+
+// InitCommand
+// BuildCommand
+// ServeCommand
+// SyncCommand (pull)
+// DeployCommand (push)

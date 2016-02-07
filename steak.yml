@@ -1,6 +1,5 @@
 source: tests/fixtures/site
 output: build
-bootstrap: Parsnick\Steak\Bootstrapper
-exclude:
-  - assets
-  - bower_components
+pipeline:
+  - skip:_*
+  - blade

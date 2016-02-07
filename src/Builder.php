@@ -22,16 +22,12 @@ class Builder
      * Create a new Builder instance.
      *
      * @param Container $app
+     * @param array $publishers
      */
-    public function __construct(Container $app)
+    public function __construct(Container $app, array $publishers = [])
     {
         $this->app = $app;
-        $this->app->bind('skip', Publishers\SkipExcluded::class);
-        $this->publishers = [
-            Publishers\SkipUnderscored::class,
-            //'skip:assets',
-            Publishers\CompileBlade::class,
-        ];
+        $this->publishers = $publishers;
     }
 
     /**

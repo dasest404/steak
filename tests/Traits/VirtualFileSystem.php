@@ -64,7 +64,10 @@ trait VirtualFileSystem
     {
         $container = new Container();
 
-        $builder = new Builder($container);
+        $builder = new Builder($container, [
+            \Parsnick\Steak\Publishers\SkipExcluded::class.':_*',
+            \Parsnick\Steak\Publishers\CompileBlade::class,
+        ]);
 
         return $builder->build(
             vfsStream::url('root/source'),
