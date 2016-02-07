@@ -26,8 +26,10 @@ class Builder
     public function __construct(Container $app)
     {
         $this->app = $app;
+        $this->app->bind('skip', Publishers\SkipExcluded::class);
         $this->publishers = [
             Publishers\SkipUnderscored::class,
+            //'skip:assets',
             Publishers\CompileBlade::class,
         ];
     }
@@ -41,7 +43,9 @@ class Builder
      */
     public function build($sourceDir, $outputDir)
     {
-        foreach (Finder::create()->in($sourceDir) as $file) {
+        $sources = Finder::create()->depth('< 1')->in($sourceDir);
+
+        foreach ($sources as $file) {
             $this->publish(Source::extend($file, $outputDir));
         };
     }

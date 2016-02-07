@@ -7,11 +7,26 @@ if (file_exists(__DIR__.'/../../autoload.php')) {
     require __DIR__.'/vendor/autoload.php';
 }
 
-$container = new Illuminate\Container\Container();
+$steak = new Parsnick\Steak\Application(new Illuminate\Container\Container(), '1.0.0');
 
-$app = new Symfony\Component\Console\Application('Steak', '1.0.0');
-$app->add(
-    $container->make(Parsnick\Steak\Console\BuildCommand::class)
-);
 
-$app->run();
+/*
+$steak->bootstrap([
+    // ReadConfig
+]);
+
+$steak->pipeline([
+    // SkipUnderscored
+    // CompileBlade
+    // CompilePhp
+]);*/
+
+$steak->commands([
+    // InitCommand
+    Parsnick\Steak\Console\BuildCommand::class,
+    // ServeCommand
+    // SyncCommand (pull)
+    // DeployCommand (push)
+]);
+
+$steak->run();

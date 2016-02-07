@@ -14,10 +14,16 @@
             "Parsnick\\Steak\\": "src"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Parsnick\\Steak\\Tests\\": "tests"
+        }
+    },
     "bin": [
         "steak"
     ],
     "require": {
+        "illuminate/config": "^5.2",
         "illuminate/filesystem": "^5.2",
         "illuminate/pipeline": "^5.2",
         "illuminate/view": "^5.2",
