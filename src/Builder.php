@@ -3,10 +3,8 @@
 namespace Parsnick\Steak;
 
 use Illuminate\Container\Container;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Pipeline\Pipeline;
-use Parsnick\Steak\Publishers\SkipUnderscored;
-use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Finder\Finder;
 
 class Builder
 {
@@ -14,11 +12,6 @@ class Builder
      * @var Container
      */
     protected $app;
-
-    /**
-     * @var Filesystem
-     */
-    protected $files;
 
     /**
      * @var array
@@ -29,14 +22,12 @@ class Builder
      * Create a new Builder instance.
      *
      * @param Container $app
-     * @param Filesystem $files
      */
-    public function __construct(Container $app, Filesystem $files)
+    public function __construct(Container $app)
     {
         $this->app = $app;
-        $this->files = $files;
         $this->publishers = [
-            SkipUnderscored::class,
+            Publishers\SkipUnderscored::class,
             Publishers\CompileBlade::class,
         ];
     }
@@ -50,45 +41,27 @@ class Builder
      */
     public function build($sourceDir, $outputDir)
     {
-        $sources = $this->files->allFiles($sourceDir);
-
-        return array_walk($sources, function ($file) use ($outputDir) {
-            $this->publish(new File($file, $outputDir));
-        });
+        foreach (Finder::create()->in($sourceDir) as $file) {
+            $this->publish(Source::extend($file, $outputDir));
+        };
     }
 
     /**
-     * Publish a file.
+     * Publish a file / directory.
      *
-     * @param File $file
-     * @return bool
+     * @param Source $source
+     * @return bool|mixed
      */
-    protected function publish(File $file)
+    protected function publish(Source $source)
     {
         return (new Pipeline($this->app))
-            ->send($file)
+            ->send($source)
             ->via('publish')
             ->through($this->publishers)
-            ->then(function (File $file) {
-                return $this->write($file->output->getPathname(), $file->contents);
+            ->then(function (Source $source) {
+                if ($source->isDir()) {
+                    $this->build($source->getPathname(), $source->getOutputPathname());
+                }
             });
-    }
-
-    /**
-     * Write file contents, creating any necessary subdirectories.
-     *
-     * @param string $destination
-     * @param string $content
-     * @return bool
-     */
-    protected function write($destination, $content)
-    {
-        $directory = dirname($destination);
-
-        if ( ! $this->files->exists($directory)) {
-            $this->files->makeDirectory($directory, 0755, true);
-        }
-
-        return (bool) $this->files->put($destination, $content);
     }
 }

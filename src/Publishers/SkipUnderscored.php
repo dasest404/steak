@@ -3,35 +3,21 @@
 namespace Parsnick\Steak\Publishers;
 
 use Closure;
-use Parsnick\Steak\File;
+use Parsnick\Steak\Source;
 
 class SkipUnderscored implements  Publisher
 {
     /**
      * Publish a source file and/or pass to $next.
      *
-     * @param File $file
+     * @param Source $source
      * @param Closure $next
      * @return mixed
      */
-    public function publish(File $file, Closure $next)
+    public function publish(Source $source, Closure $next)
     {
-        $sourcePath = $file->source->getRelativePathname();
-
-        if ( ! $this->startsWithUnderscore($sourcePath)) {
-            $next($file);
+        if ( ! starts_with($source->getRelativePathname(), '_')) {
+            $next($source);
         }
     }
-
-    /**
-     * Test if a file should be ignored.
-     *
-     * @param string $path
-     * @return bool
-     */
-    protected function startsWithUnderscore($path)
-    {
-        return starts_with($path, '_') || str_contains($path, DIRECTORY_SEPARATOR.'_');
-    }
-
 }

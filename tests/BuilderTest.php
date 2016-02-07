@@ -85,17 +85,17 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
-    /** @test */
-    function it_publishes_non_php_files_verbatim()
+    /** test */
+    function it_publishes_php_files_without_compiling_from_blade()
     {
         $this->createSource([
-            'main.css' => 'body {}',
+            'index.php' => '<?php echo "hello";',
         ]);
 
         $this->build();
 
         $this->seeGenerated([
-            'main.css' => 'body {}',
+            'index.php' => 'hello',
         ]);
     }
 
@@ -155,7 +155,7 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
      * @param array $structure
      * @param string $prefix
      */
-    protected function seeGenerated(array $structure, $prefix = '')
+    protected function seeGenerated(array $structure, $prefix = '.')
     {
         foreach ($this->parseStructure($structure) as $name => $value) {
             if (is_array($value)) {

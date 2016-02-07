@@ -3,16 +3,16 @@
 namespace Parsnick\Steak\Publishers;
 
 use Closure;
-use Parsnick\Steak\File;
+use Parsnick\Steak\Source;
 
 interface Publisher
 {
     /**
      * Publish a source file and/or pass to $next.
      *
-     * @param File $file
+     * @param Source $source
      * @param Closure $next
      * @return mixed
      */
-    public function publish(File $file, Closure $next);
+    public function publish(Source $source, Closure $next);
 }
