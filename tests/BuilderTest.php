@@ -68,6 +68,9 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 'sidebar.blade.php',
                 'footer.blade.php',
             ],
+            'tutorials' => [
+                '_splash.blade.php',
+            ],
         ]);
 
         $this->build();
@@ -82,6 +85,9 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
                 'sidebar.blade.php',
                 'footer.blade.php',
             ],
+            'tutorials' => [
+                '_splash.html',
+            ]
         ]);
     }
 

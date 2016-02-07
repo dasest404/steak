@@ -16,7 +16,7 @@ class SkipUnderscored implements  Publisher
      */
     public function publish(Source $source, Closure $next)
     {
-        if ( ! starts_with($source->getRelativePathname(), '_')) {
+        if ( ! starts_with($source->getFilename(), '_')) {
             $next($source);
         }
     }
