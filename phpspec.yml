@@ -1,4 +1,0 @@
-suites:
-  steak_suite:
-    namespace: Parsnick\Steak
-    psr4_prefix: Parsnick\Steak
