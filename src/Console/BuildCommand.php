@@ -41,7 +41,7 @@ class BuildCommand extends Command
     {
         $this
             ->setName('build')
-            ->setDescription('Build the static HTML site.');
+            ->setDescription('Builds the static HTML site');
     }
 
     /**

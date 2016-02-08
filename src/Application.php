@@ -150,7 +150,7 @@ class Application
     public function run()
     {
         $this->symfony->getDefinition()->addOption(
-            new InputOption('config', 'c', InputOption::VALUE_REQUIRED, 'path to steak configuration file', null)
+            new InputOption('config', 'c', InputOption::VALUE_REQUIRED, 'Path to steak configuration file', null)
         );
 
         return $this->symfony->run(null, $this->output);

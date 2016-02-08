@@ -23,7 +23,7 @@ class ServeCommand extends Command
     {
         $this
             ->setName('serve')
-            ->setDescription('Serve the static HTML site and watch for changes.');
+            ->setDescription('Serves the site and rebuilds on change');
     }
 
     /**
