@@ -75,6 +75,7 @@ abstract class Command extends SymfonyCommand
     protected function addConsoleFormatting(OutputInterface $output)
     {
         $output->getFormatter()->setStyle('path', new OutputFormatterStyle('green', null, ['bold']));
+        $output->getFormatter()->setStyle('time', new OutputFormatterStyle('cyan', null, ['bold']));
     }
 
     /**

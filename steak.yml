@@ -1,2 +1,4 @@
 source: tests/fixtures/site
 output: build
+gulp:
+  cwd: tests/fixtures/

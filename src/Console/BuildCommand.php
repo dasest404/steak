@@ -2,11 +2,14 @@
 
 namespace Parsnick\Steak\Console;
 
+use Closure;
 use Parsnick\Steak\Builder;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class BuildCommand extends Command
@@ -56,12 +59,60 @@ class BuildCommand extends Command
         $output->writeln("<info>Compiling <path>{$src}</> into <path>{$dest}</></info>");
 
         $timer = new Stopwatch();
+        $timer->start('task');
+
+        $timer->start('clean');
+        $this->files->cleanDirectory($dest);
+        $cleanTime = $timer->stop('clean');
+
+        if ($output->isVerbose()) {
+            $output->writeln("<comment>Cleaned <path>{$dest}</path> in <time>{$cleanTime->getDuration()}ms</time>.</comment>");
+        }
+
         $timer->start('build');
-
         $this->builder->build($src, $dest);
+        $buildTime = $timer->stop('build');
 
-        $profile = $timer->stop('build');
+        if ($output->isVerbose()) {
+            $output->writeln("<comment>PHP built in <time>{$buildTime->getDuration()}ms</time>.</comment>");
+        }
 
-        $output->writeln("<comment>Built in {$profile->getDuration()}ms.</comment>");
+        if ($output->isVeryVerbose()) {
+            $output->writeln("<comment>Starting gulp...</comment>");
+        }
+
+        $timer->start('gulp');
+        $this->runGulp($src, $dest, function ($type, $buffer) use ($output) {
+            if ($type === Process::ERR) {
+                $output->writeln("<error>$buffer</error>");
+            } elseif ($output->isVeryVerbose()) {
+                $output->write($buffer);
+            }
+        });
+        $gulpTime = $timer->stop('gulp');
+
+        if ($output->isVerbose()) {
+            $output->writeln("<comment>gulp published in <time>{$gulpTime->getDuration()}ms</time>.</comment>");
+        }
+
+        $total = $timer->stop('task');
+
+        $output->writeln("<info>Done in <time>{$total->getDuration()}ms</time>.</info>");
+    }
+
+    /**
+     * Run the gulp steak:publish task to compile or copy any non-php files.
+     *
+     * @param string $src
+     * @param string $dest
+     * @param Closure $callback
+     */
+    protected function runGulp($src, $dest, Closure $callback)
+    {
+        $process = ProcessBuilder::create(['gulp', 'steak:publish', '--source', $src, '--dest', $dest])
+            ->setWorkingDirectory($this->config->get('gulp.cwd'))
+            ->getProcess();
+
+        $process->mustRun($callback);
     }
 }
