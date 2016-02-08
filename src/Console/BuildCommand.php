@@ -3,6 +3,7 @@
 namespace Parsnick\Steak\Console;
 
 use Closure;
+use Illuminate\Filesystem\Filesystem;
 use Parsnick\Steak\Builder;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
@@ -40,8 +41,7 @@ class BuildCommand extends Command
     {
         $this
             ->setName('build')
-            ->setDescription('Build the static HTML site.')
-            ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'path to configuration file', null);
+            ->setDescription('Build the static HTML site.');
     }
 
     /**
@@ -53,8 +53,8 @@ class BuildCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $src = $this->config->get('source', 'source');
-        $dest = $this->config->get('output', 'build');
+        $src = $this->container['config']['source'];
+        $dest = $this->container['config']['output'];
 
         $output->writeln("<info>Compiling <path>{$src}</> into <path>{$dest}</></info>");
 
@@ -62,7 +62,7 @@ class BuildCommand extends Command
         $timer->start('task');
 
         $timer->start('clean');
-        $this->files->cleanDirectory($dest);
+        $this->container->make(Filesystem::class)->cleanDirectory($dest);
         $cleanTime = $timer->stop('clean');
 
         if ($output->isVerbose()) {
@@ -109,12 +109,14 @@ class BuildCommand extends Command
      */
     protected function runGulp($src, $dest, Closure $callback)
     {
+        $config = $this->container['config'];
+
         ProcessBuilder::create([
-                $this->config->get('gulp.bin', 'gulp'),
-                $this->config->get('gulp.task', 'steak:publish'),
+                $config['gulp.bin'],
+                $config['gulp.task'],
                 '--source', $src,
                 '--dest', $dest,
-                '--gulpfile', $this->config->get('gulp.file', 'gulpfile.js'),
+                '--gulpfile', $config['gulp.file'],
                 '--cwd', getcwd(),
                 '--color',
             ])

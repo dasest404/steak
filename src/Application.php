@@ -6,7 +6,10 @@ use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Application as SymfonyApplication;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Yaml\Yaml;
 
 class Application
@@ -22,6 +25,11 @@ class Application
     protected $container;
 
     /**
+     * @var ConsoleOutput
+     */
+    protected $output;
+
+    /**
      * Create a new steak application.
      *
      * @param string $version
@@ -34,9 +42,22 @@ class Application
 
         $this->container->instance('app', $this);
 
+        $this->configureOutput();
         $this->loadExternalConfig();
         $this->callBootstrapper();
     }
+
+    /**
+     * Configure the console output with custom styles.
+     */
+    protected function configureOutput()
+    {
+        $this->output = new ConsoleOutput();
+
+        $this->output->getFormatter()->setStyle('path', new OutputFormatterStyle('green', null, ['bold']));
+        $this->output->getFormatter()->setStyle('time', new OutputFormatterStyle('cyan', null, ['bold']));
+    }
+
 
     /**
      * Load the external config files specified by the command line option.
@@ -47,6 +68,8 @@ class Application
         $filesystem = new Filesystem();
 
         foreach ($this->getConfigFiles($filesystem) as $filename) {
+
+            $this->output->writeln("<info>Reading config from <path>{$filename}</path></info>");
 
             if ($filesystem->extension($filename) == 'php') {
                 $configValues = $filesystem->getRequire($filename);
@@ -126,7 +149,11 @@ class Application
      */
     public function run()
     {
-        return $this->symfony->run();
+        $this->symfony->getDefinition()->addOption(
+            new InputOption('config', 'c', InputOption::VALUE_REQUIRED, 'path to steak configuration file', null)
+        );
+
+        return $this->symfony->run(null, $this->output);
     }
 
     /**
