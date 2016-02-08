@@ -53,6 +53,11 @@ class Application
                 ],
                 'source' => 'source',
                 'output' => 'build',
+                'gulp' => [
+                    'bin' => 'gulp',
+                    'task' => 'steak:publish',
+                    'file' => 'gulpfile.js',
+                ],
             ]);
 
             $option = (new ArgvInput())->getParameterOption(['--config', '-c']);

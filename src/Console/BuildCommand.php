@@ -109,10 +109,16 @@ class BuildCommand extends Command
      */
     protected function runGulp($src, $dest, Closure $callback)
     {
-        $process = ProcessBuilder::create(['gulp', 'steak:publish', '--source', $src, '--dest', $dest])
-            ->setWorkingDirectory($this->config->get('gulp.cwd'))
-            ->getProcess();
-
-        $process->mustRun($callback);
+        ProcessBuilder::create([
+                $this->config->get('gulp.bin', 'gulp'),
+                $this->config->get('gulp.task', 'steak:publish'),
+                '--source', $src,
+                '--dest', $dest,
+                '--gulpfile', $this->config->get('gulp.file', 'gulpfile.js'),
+                '--cwd', getcwd(),
+                '--color',
+            ])
+            ->getProcess()
+            ->mustRun($callback);
     }
 }

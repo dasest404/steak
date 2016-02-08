@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Filesystem\Filesystem;
 use Parsnick\Steak\Source;
 
-class CompileBlade implements Publisher
+class CompileBlade
 {
     /**
      * @var Filesystem

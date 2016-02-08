@@ -1,4 +1,6 @@
 source: tests/fixtures/site
 output: build
 gulp:
-  cwd: tests/fixtures/
+  bin: gulp
+  task: steak:publish
+  file: tests/fixtures/gulpfile.js
