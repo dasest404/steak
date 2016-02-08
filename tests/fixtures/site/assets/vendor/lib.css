@@ -1,3 +1,4 @@
 body {
-    font-size: 2em;
+    font: 2em Consolas;
+    background-color: #b2ccda;
 }

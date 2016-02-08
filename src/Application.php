@@ -174,7 +174,6 @@ class Application
             ],
             'gulp' => [
                 'bin' => 'gulp',
-                'task' => 'steak:publish',
                 'file' => 'gulpfile.js',
             ],
         ];
