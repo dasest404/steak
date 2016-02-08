@@ -6,10 +6,11 @@ use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
+use Parsnick\Steak\Application;
+use Parsnick\Steak\Bootstrapper;
 use Parsnick\Steak\Builder;
-use Parsnick\Steak\Config;
 
-trait VirtualFileSystem
+trait BuildInVfs
 {
     /**
      * @var vfsStreamDirectory
@@ -64,10 +65,12 @@ trait VirtualFileSystem
     {
         $container = new Container();
 
-        $builder = new Builder($container, [
-            \Parsnick\Steak\Publishers\SkipExcluded::class.':_*',
-            \Parsnick\Steak\Publishers\CompileBlade::class,
-        ]);
+        $container->instance('config', new Repository(Application::getDefaultConfig()));
+        $container->make(Bootstrapper::class)->bootstrap($container);
+
+        $container['config']['cache'] = vfsStream::url('root/.blade');
+
+        $builder = new Builder($container, $container['config']['pipeline']);
 
         return $builder->build(
             vfsStream::url('root/source'),

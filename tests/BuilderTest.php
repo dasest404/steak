@@ -2,23 +2,23 @@
 
 namespace Parsnick\Steak\Tests;
 
-use Parsnick\Steak\Tests\Traits\VirtualFileSystem;
+use Parsnick\Steak\Tests\Traits\BuildInVfs;
 
 class BuilderTest extends TestCase
 {
-    use VirtualFileSystem;
+    use BuildInVfs;
 
     /** @test */
     function it_compiles_blades_files_to_html()
     {
         $this->createSource([
-            'index.blade.php' => '',
+            'index.blade.php' => '{{ implode(",", [1, 2, 3]) }}',
         ]);
 
         $this->build();
 
         $this->seeGenerated([
-            'index.html',
+            'index.html' => '1,2,3',
         ]);
     }
 

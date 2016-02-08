@@ -5,8 +5,6 @@ namespace Parsnick\Steak;
 use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
-use Parsnick\Steak\Publishers\CompileBlade;
-use Parsnick\Steak\Publishers\SkipExcluded;
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Yaml\Yaml;
@@ -34,51 +32,69 @@ class Application
         $this->symfony = new SymfonyApplication('Steak', $version);
         $this->container = $container ?: new Container();
 
-        $this->registerDefaultBindings($this->container);
+        $this->container->instance('app', $this);
+
+        $this->loadExternalConfig();
+        $this->callBootstrapper();
     }
 
     /**
-     * @param Container $app
+     * Load the external config files specified by the command line option.
      */
-    protected function registerDefaultBindings(Container $app)
+    protected function loadExternalConfig()
     {
-        $app->singleton('files', Filesystem::class);
+        $config = new Repository(static::getDefaultConfig());
+        $filesystem = new Filesystem();
 
-        $app->singleton('config', function ($app) {
+        foreach ($this->getConfigFiles($filesystem) as $filename) {
 
-            $config = new Repository([
-                'pipeline' => [
-                    'skip:_*',
-                    'blade',
-                ],
-                'source' => 'source',
-                'output' => 'build',
-                'gulp' => [
-                    'bin' => 'gulp',
-                    'task' => 'steak:publish',
-                    'file' => 'gulpfile.js',
-                ],
-            ]);
-
-            $option = (new ArgvInput())->getParameterOption(['--config', '-c']);
-
-            if ( ! $option && $app['files']->exists('steak.yml')) {
-                $option = 'steak.yml';
+            if ($filesystem->extension($filename) == 'php') {
+                $configValues = $filesystem->getRequire($filename);
+            } else {
+                $configValues = Yaml::parse($filesystem->get($filename));
             }
 
-            foreach (explode(',', $option) as $file) {
-                $config->set(Yaml::parse($app['files']->get($file)));
+            $config->set($configValues);
+        }
+
+        $this->container->instance('config', $config);
+    }
+
+    /**
+     * Parse the command line option for config file to use.
+     *
+     * Multiple files can be given as a comma-separated list.
+     * If no option is given, defaults as used.
+     *
+     * @param Filesystem $files
+     * @param array $defaults
+     * @return array
+     */
+    protected function getConfigFiles($files, array $defaults = ['steak.yml', 'steak.php'])
+    {
+        $option = (new ArgvInput())->getParameterOption(['--config', '-c']);
+
+        if ( ! $option) {
+            foreach ($defaults as $default) {
+                if ($files->exists($default)) {
+                    $option = ($option ? ',' : '') . $default;
+                }
             }
+        }
 
-            return $config;
-        });
+        return explode(',', $option);
+    }
 
-        $app->bind(Builder::class, function ($app) {
-            return new Builder($app, $app['config']->get('pipeline'));
-        });
+    /**
+     * Call `bootstrap()` on the Bootstrapper class specified by config.
+     */
+    protected function callBootstrapper()
+    {
+        $container = $this->container;
 
-        $app->bind('skip', SkipExcluded::class);
-        $app->bind('blade', CompileBlade::class);
+        $bootstrapClass = $container['config']['bootstrap'];
+
+        $container->make($bootstrapClass)->bootstrap($container);
     }
 
     /**
@@ -111,5 +127,29 @@ class Application
     public function run()
     {
         return $this->symfony->run();
+    }
+
+    /**
+     * Get the default configuration to use when no config file is supplied.
+     *
+     * @return array
+     */
+    public static function getDefaultConfig()
+    {
+        return [
+            'source' => 'source',
+            'output' => 'build',
+            'bootstrap' => Bootstrapper::class,
+            'cache' => '.blade',
+            'pipeline' => [
+                'skip:_*',
+                'blade',
+            ],
+            'gulp' => [
+                'bin' => 'gulp',
+                'task' => 'steak:publish',
+                'file' => 'gulpfile.js',
+            ],
+        ];
     }
 }

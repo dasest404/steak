@@ -28,7 +28,8 @@
         "illuminate/pipeline": "^5.2",
         "illuminate/view": "^5.2",
         "symfony/console": "^3.0",
-        "symfony/stopwatch": "^3.0"
+        "symfony/stopwatch": "^3.0",
+        "symfony/debug": "^3.0"
     },
     "require-dev": {
         "mikey179/vfsStream": "^1.6",
