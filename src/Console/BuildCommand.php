@@ -8,6 +8,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Exception\RuntimeException;
+use Symfony\Component\Process\Process;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class BuildCommand extends Command
@@ -77,14 +80,53 @@ class BuildCommand extends Command
         $output->writeln("<comment>PHP built in <time>{$buildTime->getDuration()}ms</time>.</comment>", $output::VERBOSITY_VERBOSE);
 
         if ( ! $input->getOption('no-gulp')) {
+
             $output->writeln("<comment>Starting gulp...</comment>", $output::VERBOSITY_VERY_VERBOSE);
 
-            $timer->start('gulp');
-            $this->createGulpProcess('steak:publish')
-                 ->mustRun($this->getProcessLogger($output));
-            $gulpTime = $timer->stop('gulp');
+            $process = $this->createGulpProcess('steak:publish');
+            $callback = $this->getProcessLogger($output);
 
-            $output->writeln("<comment>gulp published in <time>{$gulpTime->getDuration()}ms</time>.</comment>", $output::VERBOSITY_VERBOSE);
+            $timer->start('gulp');
+
+            try {
+
+                $process->mustRun($callback);
+
+                $output->writeln(
+                    "<comment>gulp published in <time>{$timer->stop('gulp')->getDuration()}ms</time>.</comment>",
+                    $output::VERBOSITY_VERBOSE
+                );
+
+            } catch (ProcessFailedException $exception) {
+
+                $output->writeln(
+                    "<error>gulp process failed after <time>{$timer->stop('gulp')->getDuration()}ms</time>.</error>",
+                    $output::VERBOSITY_VERBOSE
+                );
+
+                if (str_contains($process->getOutput(), 'Local gulp not found')) {
+
+                    $output->writeln("<comment>Local gulp not found, attempting install. This might take a minute...</comment>");
+                    $output->writeln('  <comment>$</comment> npm install');
+
+                    try {
+                        $timer->start('npmInstall');
+
+                        (new Process('npm install'))->setTimeout(120)->mustRun();
+
+                        $output->writeln("<comment>Done in <time>{$timer->stop('npmInstall')->getDuration()}</time></comment>");
+
+                        $output->writeln('Retrying <comment>steak:publish</comment> task...');
+
+                        $process->mustRun($callback);
+
+                    } catch (RuntimeException $exception) {
+                        $output->writeln("<error>npm install</error> failed - try a manual install?");
+                    }
+                }
+
+            }
+
         }
 
         $total = $timer->stop('task');
