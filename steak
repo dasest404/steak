@@ -1,9 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Console\Output\ConsoleOutput;
-
 if (file_exists(__DIR__.'/../../autoload.php')) {
     require __DIR__.'/../../autoload.php';
 } else {
@@ -13,15 +10,13 @@ if (file_exists(__DIR__.'/../../autoload.php')) {
 $steak = new Parsnick\Steak\Application('1.0.0');
 
 $steak->commands([
+    Parsnick\Steak\Console\InitCommand::class,
     Parsnick\Steak\Console\BuildCommand::class,
     Parsnick\Steak\Console\ServeCommand::class,
     Parsnick\Steak\Console\StatusCommand::class,
+    //Parsnick\Steak\Console\SyncCommand::class,
+    Parsnick\Steak\Console\DeployCommand::class,
 ]);
 
 $steak->run();
 
-// InitCommand
-// BuildCommand
-// ServeCommand
-// SyncCommand (pull)
-// DeployCommand (push)

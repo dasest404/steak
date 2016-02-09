@@ -20,7 +20,7 @@ class ServeCommand extends Command
     {
         $this
             ->setName('serve')
-            ->setDescription('Serves the site and rebuilds on change')
+            ->setDescription('Serves the site for development')
         ;
     }
 
@@ -71,10 +71,20 @@ class ServeCommand extends Command
     {
         $output->writeln("<info>Starting gulp watcher...</info>", $output::VERBOSITY_VERBOSE);
 
-        $command = $this->createGulpProcess('steak:serve')->getCommandLine();
+        $command = $this->createGulpProcess('steak:serve', $this->getServeOptions())->getCommandLine();
 
         $output->writeln("  \$ <comment>$command</comment>", $output::VERBOSITY_VERY_VERBOSE);
 
         passthru($command);
+    }
+
+    /**
+     * @return array
+     */
+    protected function getServeOptions()
+    {
+        $relative = $this->container['config']['server'];
+
+        return $relative ? ['--subdir', $this->container['config']['server']] : [];
     }
 }

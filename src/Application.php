@@ -78,7 +78,7 @@ class Application
                 $configValues = Yaml::parse($filesystem->get($filename));
             }
 
-            $config->set($configValues);
+            $config->set(array_dot($configValues));
         }
 
         $this->container->instance('config', $config);
@@ -106,7 +106,7 @@ class Application
             }
         }
 
-        return explode(',', $option);
+        return $option ? explode(',', $option) : [];
     }
 
     /**

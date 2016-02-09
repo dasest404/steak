@@ -22,6 +22,16 @@ abstract class Command extends SymfonyCommand
     protected $container;
 
     /**
+     * @var InputInterface
+     */
+    protected $input;
+
+    /**
+     * @var OutputInterface
+     */
+    protected $output;
+
+    /**
      * Set the IoC container.
      *
      * @param Container $container
@@ -35,24 +45,38 @@ abstract class Command extends SymfonyCommand
     }
 
     /**
+     * Attach IO to command for easier access between methods.
+     *
+     * @param  InputInterface  $input
+     * @param  OutputInterface  $output
+     */
+    protected function setIo(InputInterface $input, OutputInterface $output)
+    {
+        $this->input = $input;
+        $this->output = $output;
+    }
+
+    /**
      * Create a process builder for the given gulp task.
      *
      * @param string $task
+     * @param array $options
      * @return Process
      */
-    protected function createGulpProcess($task)
+    protected function createGulpProcess($task, array $options = [])
     {
         $config = $this->container['config'];
 
-        return ProcessBuilder::create([
+        return ProcessBuilder::create(array_flatten([
             $config['gulp.bin'],
             $task,
+            $options,
             '--source', $config['source'],
             '--dest', $config['output'],
             '--gulpfile', $config['gulp.file'],
             '--cwd', getcwd(),
             '--color',
-        ])
+        ]))
         ->getProcess();
     }
 
