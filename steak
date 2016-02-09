@@ -15,6 +15,7 @@ $steak = new Parsnick\Steak\Application('1.0.0');
 $steak->commands([
     Parsnick\Steak\Console\BuildCommand::class,
     Parsnick\Steak\Console\ServeCommand::class,
+    Parsnick\Steak\Console\StatusCommand::class,
 ]);
 
 $steak->run();

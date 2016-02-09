@@ -56,6 +56,7 @@ class Application
 
         $this->output->getFormatter()->setStyle('path', new OutputFormatterStyle('green', null, ['bold']));
         $this->output->getFormatter()->setStyle('time', new OutputFormatterStyle('cyan', null, ['bold']));
+        $this->output->getFormatter()->setStyle('b', new OutputFormatterStyle(null, null, ['bold']));
     }
 
 
