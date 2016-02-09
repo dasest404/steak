@@ -4,6 +4,7 @@ namespace Parsnick\Steak\Console;
 
 use Illuminate\Filesystem\Filesystem;
 use Parsnick\Steak\Builder;
+use Parsnick\Steak\Cleaner;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,13 +22,20 @@ class BuildCommand extends Command
     protected $builder;
 
     /**
+     * @var Cleaner
+     */
+    protected $cleaner;
+
+    /**
      * Create a new BuildCommand instance.
      *
      * @param Builder $builder
+     * @param Cleaner $cleaner
      */
-    public function __construct(Builder $builder)
+    public function __construct(Builder $builder, Cleaner $cleaner)
     {
         $this->builder = $builder;
+        $this->cleaner = $cleaner;
 
         parent::__construct();
     }
@@ -67,7 +75,7 @@ class BuildCommand extends Command
 
         if ( ! $input->getOption('no-clean')) {
             $timer->start('clean');
-            $this->container->make(Filesystem::class)->cleanDirectory($dest);
+            $this->cleaner->clean($dest);
             $cleanTime = $timer->stop('clean');
 
             $output->writeln("<comment>Cleaned <path>{$dest}</path> in <time>{$cleanTime->getDuration()}ms</time>.</comment>", $output::VERBOSITY_VERBOSE);
