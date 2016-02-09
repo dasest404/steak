@@ -38,7 +38,11 @@ class BuildCommand extends Command
     {
         $this
             ->setName('build')
-            ->setDescription('Builds the static HTML site');
+            ->setDescription('Builds the static HTML site')
+            ->addArgument('files', InputArgument::IS_ARRAY, 'Blade files to render.', [])
+            ->addOption('no-clean', null, InputOption::VALUE_NONE, 'Skip cleaning of the output folder.')
+            ->addOption('no-gulp', null, InputOption::VALUE_NONE, 'Skip running the gulp script.')
+        ;
     }
 
     /**
@@ -58,26 +62,30 @@ class BuildCommand extends Command
         $timer = new Stopwatch();
         $timer->start('task');
 
-        $timer->start('clean');
-        $this->container->make(Filesystem::class)->cleanDirectory($dest);
-        $cleanTime = $timer->stop('clean');
+        if ( ! $input->getOption('no-clean')) {
+            $timer->start('clean');
+            $this->container->make(Filesystem::class)->cleanDirectory($dest);
+            $cleanTime = $timer->stop('clean');
 
-        $output->writeln("<comment>Cleaned <path>{$dest}</path> in <time>{$cleanTime->getDuration()}ms</time>.</comment>", $output::VERBOSITY_VERBOSE);
+            $output->writeln("<comment>Cleaned <path>{$dest}</path> in <time>{$cleanTime->getDuration()}ms</time>.</comment>", $output::VERBOSITY_VERBOSE);
+        }
 
         $timer->start('build');
-        $this->builder->build($src, $dest);
+        $this->builder->build($input->getArgument('files') ?: $src, $dest);
         $buildTime = $timer->stop('build');
 
         $output->writeln("<comment>PHP built in <time>{$buildTime->getDuration()}ms</time>.</comment>", $output::VERBOSITY_VERBOSE);
 
-        $output->writeln("<comment>Starting gulp...</comment>", $output::VERBOSITY_VERY_VERBOSE);
+        if ( ! $input->getOption('no-gulp')) {
+            $output->writeln("<comment>Starting gulp...</comment>", $output::VERBOSITY_VERY_VERBOSE);
 
-        $timer->start('gulp');
-        $this->createGulpProcess('steak:publish')
-             ->mustRun($this->getProcessLogger($output));
-        $gulpTime = $timer->stop('gulp');
+            $timer->start('gulp');
+            $this->createGulpProcess('steak:publish')
+                 ->mustRun($this->getProcessLogger($output));
+            $gulpTime = $timer->stop('gulp');
 
-        $output->writeln("<comment>gulp published in <time>{$gulpTime->getDuration()}ms</time>.</comment>", $output::VERBOSITY_VERBOSE);
+            $output->writeln("<comment>gulp published in <time>{$gulpTime->getDuration()}ms</time>.</comment>", $output::VERBOSITY_VERBOSE);
+        }
 
         $total = $timer->stop('task');
 

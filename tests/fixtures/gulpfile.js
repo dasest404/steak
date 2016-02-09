@@ -1,51 +1,62 @@
-var gulp = require('gulp');
 var argv = require('yargs').demand(['source', 'dest']).argv;
-var browserSync = require('browser-sync');
+var browserSync = require('browser-sync').create();
 var changed = require('gulp-changed');
+var exec = require('child_process').exec;
+var gulp = require('gulp');
 var filter = require('gulp-filter');
 var print = require('gulp-print');
 
-var source = argv.source;
-var dest = argv.dest;
-var publishable = [source+'/**', '!**/*.php', '!'+source+'/**/_*/**', '!'+source+'/**/_*'];
-
-var filesOnly = (file) => !file.isDirectory();
+var paths = {
+    source: argv.source,
+    output: argv.dest,
+    patterns: {
+        blade: [
+            `${argv.source}/**/*.php`,
+            `!${argv.source}/**/_*/**`,
+            `!${argv.source}/**/_*`
+        ],
+        not: {
+            blade: [
+                `${argv.source}/**/*`,
+                `!${argv.source}/**/*.php`,
+                `!${argv.source}/**/_*/**`,
+                `!${argv.source}/**/_*`
+            ]
+        }
+    }
+};
 
 gulp.task('steak:publish', () => {
     return gulp
-        .src(publishable)
-        .pipe(filter(filesOnly))
+        .src(paths.patterns.not.blade)
+        .pipe(changed(paths.output))
+        .pipe(filter(isFile))
         .pipe(print())
-        .pipe(gulp.dest(dest))
+        .pipe(gulp.dest(paths.output))
     ;
 });
 
-gulp.task('steak:republish', () => {
-   return gulp
-       .src(publishable)
-       .pipe(filter(filesOnly))
-       .pipe(changed(dest))
-       .pipe(gulp.dest(dest));
-});
-
 gulp.task('steak:serve', () => {
-    browserSync({
+    browserSync.init({
         server: {
-            baseDir: dest,
+            baseDir: paths.output,
             routes: {
-                "/steak": dest
+                "/steak": paths.output
             }
-        }
+        },
+        files: [
+            paths.output
+        ],
+        startPath: "/steak"
     });
 
-    gulp.watch(publishable, ['steak:republish']);
-    gulp.watch(publishable).on('change', browserSync.reload);
+    gulp.watch(paths.patterns.not.blade, ['steak:publish']);
+
+    gulp.watch(paths.patterns.blade).on('change', (file) => {
+        exec('php steak build ' + file.path + ' --no-gulp --no-clean');
+    });
 });
 
-gulp.task('steak:blade', () => {
-    return gulp
-        .src(publishable)
-        .pipe(filter(filesOnly))
-        .pipe(print())
-        .pipe(gulp.dest(dest));
-});
+var isFile = function (file) {
+    return ! file.isDirectory();
+};

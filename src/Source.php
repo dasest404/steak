@@ -53,21 +53,6 @@ class Source extends SplFileInfo
     }
 
     /**
-     * @param SplFileInfo $existing
-     * @param string $outputDir
-     * @return static
-     */
-    public static function extend(SplFileInfo $existing, $outputDir)
-    {
-        return new static(
-            $existing->getPathname(),
-            $existing->getRelativePath(),
-            $existing->getRelativePathname(),
-            $outputDir.DIRECTORY_SEPARATOR.$existing->getRelativePathname()
-        );
-    }
-
-    /**
      * Get the full pathname to the output file.
      *
      * @param array|string|null $extension

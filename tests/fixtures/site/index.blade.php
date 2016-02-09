@@ -1,5 +1,5 @@
 @extends('_layouts.master')
 
 @section('content')
-    <p>Index</p>
+    <h1>Index</h1>
 @stop

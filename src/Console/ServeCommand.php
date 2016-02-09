@@ -21,8 +21,6 @@ class ServeCommand extends Command
         $this
             ->setName('serve')
             ->setDescription('Serves the site and rebuilds on change')
-            ->addOption('host', null, InputOption::VALUE_OPTIONAL, 'The host address to serve the site on.', 'localhost')
-            ->addOption('port', 'p', InputOption::VALUE_OPTIONAL, 'The port to serve the site on.', '8001')
         ;
     }
 
@@ -36,7 +34,6 @@ class ServeCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->triggerInitialBuild($input, $output);
-
         $this->startGulpWatcher($input, $output);
     }
 

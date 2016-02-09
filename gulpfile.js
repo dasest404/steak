@@ -1,3 +1,7 @@
+/**
+ * ! This is the gulpfile.js used for developing the package,
+ * *not* the default gulpfile.js used in a `steak init`.
+ */
 var gulp = require('gulp');
 var phpunit = require('gulp-phpunit');
 
