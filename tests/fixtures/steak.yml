@@ -1,5 +1,6 @@
 source: tests/fixtures/site
-output: build
+output: tests/fixtures/build
 gulp:
   bin: gulp
   file: tests/fixtures/gulpfile.js
+server: test
