@@ -23,6 +23,7 @@
         "steak"
     ],
     "require": {
+        "cpliakas/git-wrapper": "^1.6",
         "illuminate/config": "^5.2",
         "illuminate/filesystem": "^5.2",
         "illuminate/pipeline": "^5.2",

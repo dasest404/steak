@@ -3,6 +3,7 @@
 namespace Parsnick\Steak\Console;
 
 use Carbon\Carbon;
+use GitWrapper\GitWrapper;
 use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputOption;
@@ -10,7 +11,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 class StatusCommand extends Command
 {
@@ -50,6 +50,10 @@ class StatusCommand extends Command
                 [' Output', $this->formatDirectoryState($config['output'])],
                 [' Blade cache', $this->formatDirectoryState($config['cache'])],
                 [''],
+                ['<b>Git</b>'],
+                [' Source', $this->formatSourceGitStatus()],
+                [' Output', $this->formatOutputGitStatus()],
+                [''],
                 ['<b>Gulp</b>'],
                 [' Binary', $config['gulp.bin']],
                 [' Gulpfile', $config['gulp.file']],
@@ -61,14 +65,6 @@ class StatusCommand extends Command
         ;
 
         $table->render();
-    }
-
-    /**
-     * @return string
-     */
-    protected function formatCacheStatus()
-    {
-        return ;
     }
 
     /**
@@ -102,22 +98,6 @@ class StatusCommand extends Command
     }
 
     /**
-     * @return string
-     */
-    protected function formatOutputStatus()
-    {
-        /** @var Filesystem $files */
-        $files = $this->container['files'];
-        $path = $this->container['config']['output'];
-
-        if ($files->exists($path)) {
-            return "<error>{$date->diffForHumans()}</error>";
-        }
-
-        return "<info>{$date->diffForHumans()}</info>";
-    }
-
-    /**
      * @param $path
      * @return string
      */
@@ -138,5 +118,39 @@ class StatusCommand extends Command
         }
 
         return "<info>$path</info>";
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function formatSourceGitStatus()
+    {
+        $sourceDir = $this->container['config']['source'];
+
+        $repo = (new GitWrapper())->workingCopy($sourceDir);
+
+        if ( ! $repo->isCloned()) {
+            return "<comment>no repository found</comment>";
+        }
+
+        // @todo
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    protected function formatOutputGitStatus()
+    {
+        $outputDir = $this->container['config']['output'];
+
+        $repo = (new GitWrapper())->workingCopy($outputDir);
+
+        if ( ! $repo->isCloned()) {
+            return "<comment>no repository found</comment>";
+        }
+
+        // @todo
+        return '';
     }
 }
