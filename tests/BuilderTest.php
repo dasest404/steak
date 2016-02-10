@@ -83,7 +83,7 @@ class BuilderTest extends TestCase
         ]);
     }
 
-    /** @todo */
+    /** @test */
     function it_publishes_php_files_without_compiling_from_blade()
     {
         $this->createSource([
@@ -93,7 +93,27 @@ class BuilderTest extends TestCase
         $this->build();
 
         $this->seeGenerated([
-            'index.php' => 'hello',
+            'index.html' => 'hello',
+        ]);
+    }
+
+    /** @test */
+    function it_ignores_unknown_or_static_files()
+    {
+        $this->createSource([
+            'app.js',
+            'assets' => [
+                'vendor.css'
+            ],
+        ]);
+
+        $this->build();
+
+        $this->dontSeeGenerated([
+            'api.js',
+            'assets' => [
+                'vendor.css'
+            ],
         ]);
     }
 }

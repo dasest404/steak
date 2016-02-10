@@ -38,19 +38,23 @@ class CompileBlade extends Writer
      */
     public function publish(Source $source, Closure $next)
     {
-        if ($this->isBlade($source)) {
+        if ($this->isRenderable($source)) {
 
             $view = new View(
                 $this->factory,
                 $this->factory->getEngineFromPath($source->getPathname()),
-                $source->getContents(),
+                $this->files->get($source->getPathname()),
                 $source->getPathname()
             );
 
+            $source->changeExtension(['.blade.php' => '.html'])
+                   ->changeExtension(['.php' => '.html']);
+
             $this->write(
-                $source->getOutputPathname(['.blade.php' => '.html']),
+                $source->getOutputPathname(),
                 $view->render()
             );
+
         }
 
         $next($source);
@@ -60,8 +64,8 @@ class CompileBlade extends Writer
      * @param Source $source
      * @return bool
      */
-    protected function isBlade(Source $source)
+    protected function isRenderable(Source $source)
     {
-        return ends_with($source->getFilename(), '.blade.php');
+        return $source->getExtension() === 'php';
     }
 }
