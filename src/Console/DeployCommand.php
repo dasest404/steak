@@ -52,6 +52,7 @@ class DeployCommand extends Command
         $this
             ->setName('deploy')
             ->setDescription('Deploys the generated site')
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Push without asking for confirmation')
         ;
     }
 
@@ -160,16 +161,21 @@ class DeployCommand extends Command
             return $this->output->writeln('<comment>No changes to deploy!</comment>');
         }
 
-        if ( ! $this->askForChangesConfirmation($workingCopy)) {
-            return $this->output->writeln('<error>Aborted!</error>');
+        $this->output->writeln('<info>Ready to deploy changes:</info>');
+        $this->output->write($workingCopy->getStatus());
+
+        if ( ! $this->input->getOption('force')) {
+            if ( ! $this->askForChangesConfirmation($workingCopy)) {
+                return $this->output->writeln('<error>Aborted!</error>');
+            }
         }
+
+        $this->output->writeln('<info>Deploying...</info>');
 
         $this->output->write(
             $workingCopy->add('.')->commit($this->getCommitMessage())->push()->getOutput(),
             OutputInterface::VERBOSITY_VERBOSE
         );
-
-        $this->output->writeln('<info>Deployment complete</info>');
     }
 
     /**
@@ -180,9 +186,6 @@ class DeployCommand extends Command
      */
     protected function askForChangesConfirmation(GitWorkingCopy $workingCopy)
     {
-        $this->output->writeln('<info>Ready to deploy changes...</info>');
-        $this->output->write($workingCopy->getStatus());
-
         $deployTo = "{$this->container['config']['deploy.git.url']}#{$this->container['config']['deploy.git.branch']}";
 
         $confirm = new ConfirmationQuestion("<comment>Commit all and push to <path>{$deployTo}</path>?</comment> [Yn] ");
