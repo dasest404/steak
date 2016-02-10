@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 abstract class Command extends SymfonyCommand
 {
@@ -35,7 +36,7 @@ abstract class Command extends SymfonyCommand
      * Set the IoC container.
      *
      * @param Container $container
-     * @return Command
+     * @return $this
      */
     public function setContainer($container)
     {
@@ -49,11 +50,14 @@ abstract class Command extends SymfonyCommand
      *
      * @param  InputInterface  $input
      * @param  OutputInterface  $output
+     * @return $this
      */
     protected function setIo(InputInterface $input, OutputInterface $output)
     {
         $this->input = $input;
         $this->output = $output;
+
+        return $this;
     }
 
     /**
@@ -94,5 +98,21 @@ abstract class Command extends SymfonyCommand
 
             $output->write($buffer, false, $output::VERBOSITY_VERY_VERBOSE);
         };
+    }
+
+    /**
+     * Get the ms duration of the time taken for $task to execute.
+     *
+     * @param Closure $task
+     * @return int
+     */
+    protected function runTimedTask(Closure $task)
+    {
+        $timer = new Stopwatch();
+        $timer->start('subtask');
+
+        $task();
+
+        return $timer->stop('subtask')->getDuration();
     }
 }

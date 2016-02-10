@@ -2,52 +2,50 @@
 
 namespace Parsnick\Steak;
 
-use Symfony\Component\Finder\SplFileInfo;
+use SplFileInfo;
 
 class Source extends SplFileInfo
 {
     /**
      * @var string
      */
-    protected $outputFile;
+    protected $outputPathname;
 
     /**
-     * Create a new File instance.
+     * Create a new Source instance.
      *
-     * @param string $file
-     * @param string $relativePath
-     * @param string $relativePathname
-     * @param string $outputFile
+     * @param string $inputPathname
+     * @param string $outputPathname
      */
-    public function __construct(
-        $file,
-        $relativePath,
-        $relativePathname,
-        $outputFile
-    ) {
-        $this->outputFile = $outputFile;
+    public function __construct($inputPathname, $outputPathname) {
 
-        parent::__construct($file, $relativePath, $relativePathname);
+        $this->outputPathname = $outputPathname;
+
+        parent::__construct($inputPathname);
     }
 
     /**
-     * Change the file extension on the output file.
+     * Change the extension of the output pathname.
      *
-     * By default, uses same extension as the source.
-     *
-     * @param string $to
-     * @param string $from
+     * @param array|string|null $rename
      * @return $this
      */
-    public function changeExtension($to, $from = '*')
+    public function changeExtension($rename)
     {
-        if ($from == '*') {
-            $from = pathinfo($this->outputFile, PATHINFO_EXTENSION);
+        $search = '';
+        $replace = '';
+
+        if (is_array($rename)) {
+            $search = key($rename);
+            $replace = current($rename);
         }
 
-        if (ends_with($this->outputFile, $from)) {
-            $this->outputFile = preg_replace("#$from\$#", $to, $this->outputFile);
+        if (is_string($rename)) {
+            $search = pathinfo($this->outputPathname, PATHINFO_EXTENSION);
+            $replace = $rename;
         }
+
+        $this->outputPathname = preg_replace("#$search\$#", $replace, $this->outputPathname);
 
         return $this;
     }
@@ -55,24 +53,15 @@ class Source extends SplFileInfo
     /**
      * Get the full pathname to the output file.
      *
-     * @param array|string|null $extension
+     * @param array|string|null $rename
      * @return string
      */
-    public function getOutputPathname($extension = null)
+    public function getOutputPathname($rename = null)
     {
-        $search = '';
-        $replace = '';
-
-        if (is_array($extension)) {
-            $search = key($extension);
-            $replace = current($extension);
+        if ($rename) {
+            $this->changeExtension($rename);
         }
 
-        if (is_string($extension)) {
-            $search = pathinfo($this->outputFile, PATHINFO_EXTENSION);
-            $replace = $extension;
-        }
-
-        return preg_replace("#$search\$#", $replace, $this->outputFile);
+        return $this->outputPathname;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Parsnick\Steak\Console;
 
+use Closure;
 use Illuminate\Filesystem\Filesystem;
 use Parsnick\Steak\Builder;
 use Parsnick\Steak\Cleaner;
@@ -22,20 +23,13 @@ class BuildCommand extends Command
     protected $builder;
 
     /**
-     * @var Cleaner
-     */
-    protected $cleaner;
-
-    /**
      * Create a new BuildCommand instance.
      *
      * @param Builder $builder
-     * @param Cleaner $cleaner
      */
-    public function __construct(Builder $builder, Cleaner $cleaner)
+    public function __construct(Builder $builder)
     {
         $this->builder = $builder;
-        $this->cleaner = $cleaner;
 
         parent::__construct();
     }
@@ -50,11 +44,12 @@ class BuildCommand extends Command
         $this
             ->setName('build')
             ->setDescription('Builds the static HTML site')
-            ->addArgument('files', InputArgument::IS_ARRAY, 'Blade files to render.', [])
-            ->addOption('no-clean', null, InputOption::VALUE_NONE, 'Skip cleaning of the output folder.')
-            ->addOption('no-gulp', null, InputOption::VALUE_NONE, 'Skip running the gulp script.')
+            ->addArgument('files', InputArgument::IS_ARRAY, 'Blade file(s) to render', [])
+            ->addOption('no-clean', null, InputOption::VALUE_NONE, 'Skip cleaning of the output folder')
+            ->addOption('no-gulp', null, InputOption::VALUE_NONE, 'Skip running the gulp script for static assets')
         ;
     }
+
 
     /**
      * Execute the command.
@@ -65,80 +60,116 @@ class BuildCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $src = $this->container['config']['source'];
-        $dest = $this->container['config']['output'];
+        $this->setIo($input, $output);
 
-        $output->writeln("<info>Compiling <path>{$src}</> into <path>{$dest}</></info>");
+        $sourceDir = $this->container['config']['source'];
+        $outputDir = $this->container['config']['output'];
+
+        $output->writeln("<info>Compiling <path>{$sourceDir}</path> into <path>{$outputDir}</path></info>");
+
+        $total = $this->runTimedTask(function () use ($sourceDir, $outputDir) {
+
+            if ( ! $this->input->getOption('no-clean')) {
+                $this->runCleanTask($outputDir);
+            }
+
+            $this->runBuildTask($sourceDir, $outputDir);
+
+            if ( ! $this->input->getOption('no-gulp')) {
+                $this->runGulpTask();
+            }
+
+        });
+
+        $output->writeln("<info>Done in <time>{$total}ms</time>.</info>");
+    }
+
+    /**
+     * Clean the output build directory.
+     *
+     * @param string $outputDir
+     */
+    protected function runCleanTask($outputDir)
+    {
+        $cleanTime = $this->runTimedTask(function () use ($outputDir) {
+            $this->builder->clean($outputDir);
+        });
+
+        $this->output->writeln(
+            "<comment>Cleaned <path>{$outputDir}</path> in <time>{$cleanTime}ms</time></comment>",
+            OutputInterface::VERBOSITY_VERBOSE
+        );
+    }
+
+    /**
+     * Build the new site pages.
+     *
+     * @param string $sourceDir
+     * @param string $outputDir
+     */
+    protected function runBuildTask($sourceDir, $outputDir)
+    {
+        $buildTime = $this->runTimedTask(function () use ($sourceDir, $outputDir) {
+            $this->builder->build($sourceDir, $outputDir);
+        });
+
+        $this->output->writeln(
+            "<comment>PHP built in <time>{$buildTime}ms</time></comment>",
+            OutputInterface::VERBOSITY_VERBOSE
+        );
+    }
+
+    /**
+     * Trigger gulp to copy other assets to the build dir.
+     */
+    protected function runGulpTask()
+    {
+        $this->output->writeln("<comment>Starting gulp...</comment>", OutputInterface::VERBOSITY_VERY_VERBOSE);
+
+        $process = $this->createGulpProcess('steak:publish');
+        $callback = $this->getProcessLogger($this->output);
 
         $timer = new Stopwatch();
-        $timer->start('task');
+        $timer->start('gulp');
 
-        if ( ! $input->getOption('no-clean')) {
-            $timer->start('clean');
-            $this->cleaner->clean($dest);
-            $cleanTime = $timer->stop('clean');
+        try {
 
-            $output->writeln("<comment>Cleaned <path>{$dest}</path> in <time>{$cleanTime->getDuration()}ms</time>.</comment>", $output::VERBOSITY_VERBOSE);
-        }
+            $process->mustRun($callback);
 
-        $timer->start('build');
-        $this->builder->build($input->getArgument('files') ?: $src, $dest);
-        $buildTime = $timer->stop('build');
+            $this->output->writeln(
+                "<comment>gulp published in <time>{$timer->stop('gulp')->getDuration()}ms</time></comment>",
+                OutputInterface::VERBOSITY_VERBOSE
+            );
 
-        $output->writeln("<comment>PHP built in <time>{$buildTime->getDuration()}ms</time>.</comment>", $output::VERBOSITY_VERBOSE);
+        } catch (ProcessFailedException $exception) {
 
-        if ( ! $input->getOption('no-gulp')) {
+            $this->output->writeln(
+                "<error>gulp process failed after <time>{$timer->stop('gulp')->getDuration()}ms</time></error>",
+                OutputInterface::VERBOSITY_VERBOSE
+            );
 
-            $output->writeln("<comment>Starting gulp...</comment>", $output::VERBOSITY_VERY_VERBOSE);
+            if (str_contains($process->getOutput(), 'Local gulp not found')) {
 
-            $process = $this->createGulpProcess('steak:publish');
-            $callback = $this->getProcessLogger($output);
+                $this->output->writeln("<comment>Local gulp not found, attempting install. This might take a minute...</comment>");
+                $this->output->writeln('  <comment>$</comment> npm install', OutputInterface::VERBOSITY_VERBOSE);
 
-            $timer->start('gulp');
+                try {
+                    $npmInstallTime = $this->runTimedTask(function () {
+                        $cwd = dirname($this->container['config']['gulp.file']);
+                        (new Process('npm install', $cwd))->setTimeout(120)->mustRun();
+                    });
 
-            try {
+                    $this->output->writeln("  <comment>npm installed in in <time>{$npmInstallTime}ms</time></comment>", OutputInterface::VERBOSITY_VERBOSE);
 
-                $process->mustRun($callback);
+                    $this->output->writeln('<comment>Retrying <b>steak:publish</b> task...</comment>');
 
-                $output->writeln(
-                    "<comment>gulp published in <time>{$timer->stop('gulp')->getDuration()}ms</time>.</comment>",
-                    $output::VERBOSITY_VERBOSE
-                );
+                    $process->mustRun($callback);
 
-            } catch (ProcessFailedException $exception) {
-
-                $output->writeln(
-                    "<error>gulp process failed after <time>{$timer->stop('gulp')->getDuration()}ms</time>.</error>",
-                    $output::VERBOSITY_VERBOSE
-                );
-
-                if (str_contains($process->getOutput(), 'Local gulp not found')) {
-
-                    $output->writeln("<comment>Local gulp not found, attempting install. This might take a minute...</comment>");
-                    $output->writeln('  <comment>$</comment> npm install');
-
-                    try {
-                        $timer->start('npmInstall');
-
-                        (new Process('npm install'))->setTimeout(120)->mustRun();
-
-                        $output->writeln("<comment>Done in <time>{$timer->stop('npmInstall')->getDuration()}</time></comment>");
-
-                        $output->writeln('Retrying <comment>steak:publish</comment> task...');
-
-                        $process->mustRun($callback);
-
-                    } catch (RuntimeException $exception) {
-                        $output->writeln("<error>npm install</error> failed - try a manual install?");
-                    }
+                } catch (RuntimeException $exception) {
+                    $this->output->writeln("We tried but <error>npm install</error> failed");
                 }
-
             }
 
         }
-
-        $total = $timer->stop('task');
-
-        $output->writeln("<info>Done in <time>{$total->getDuration()}ms</time>.</info>");
     }
 }

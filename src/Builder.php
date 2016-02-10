@@ -2,10 +2,11 @@
 
 namespace Parsnick\Steak;
 
+use FilesystemIterator;
 use Illuminate\Container\Container;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Pipeline\Pipeline;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
+use SplFileInfo;
 
 class Builder
 {
@@ -34,19 +35,45 @@ class Builder
     /**
      * Build the site.
      *
-     * @param string|array $sources
+     * @param string $sourceDir
      * @param string $outputDir
      * @return bool
      */
-    public function build($sources, $outputDir)
+    public function build($sourceDir, $outputDir)
     {
-        if (is_string($sources)) {
-            $sources = Finder::create()->depth('< 1')->in($sources);
-        }
+        $sourceList = $this->findSources($sourceDir, $outputDir);
 
-        foreach ($sources as $file) {
-            $this->publish($this->makeSource($file, $outputDir));
-        };
+        return array_walk($sourceList, [$this, 'publish']);
+    }
+
+    /**
+     * Create array of Sources from the given input directory.
+     *
+     * @param string $searchIn
+     * @param string $outputTo
+     * @return array
+     */
+    protected function findSources($searchIn, $outputTo)
+    {
+        $files = iterator_to_array(new FilesystemIterator($searchIn));
+
+        return array_map(function (SplFileInfo $file) use ($outputTo) {
+
+            return $this->makeSource($file, $outputTo);
+
+        }, $files);
+    }
+
+    /**
+     * Create a Source from the given file and output dir.
+     *
+     * @param SplFileInfo $file
+     * @param string $outputDir
+     * @return Source
+     */
+    public function makeSource(SplFileInfo $file, $outputDir)
+    {
+        return new Source($file->getPathname(), $outputDir . DIRECTORY_SEPARATOR . $file->getFilename());
     }
 
     /**
@@ -55,7 +82,7 @@ class Builder
      * @param Source $source
      * @return bool|mixed
      */
-    protected function publish(Source $source)
+    public function publish(Source $source)
     {
         return (new Pipeline($this->app))
             ->send($source)
@@ -69,25 +96,19 @@ class Builder
     }
 
     /**
-     * @param $file
-     * @param $outputDir
-     * @return Source
+     * Remove the contents of a directory, but not the directory itself.
+     *
+     * @param string $dir
+     * @return bool
      */
-    protected function makeSource($file, $outputDir)
+    public function clean($dir)
     {
-        if (is_string($file)) {
-            $sourceRoot = realpath($this->app['config']['source']);
+        $filesystem = new Filesystem();
 
-            $relative = preg_replace('#^'.preg_quote($sourceRoot).'/#', '', realpath($file));
-
-            $file = new SplFileInfo($file, dirname($relative), $relative);
+        if ( ! $filesystem->exists($dir)) {
+            return $filesystem->makeDirectory($dir, 0755, true);
         }
 
-        return new Source(
-            $file->getPathname(),
-            $file->getRelativePath(),
-            $file->getRelativePathname(),
-            $outputDir.DIRECTORY_SEPARATOR.$file->getRelativePathname()
-        );
+        return $filesystem->cleanDirectory($dir);
     }
 }
