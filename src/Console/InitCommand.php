@@ -110,17 +110,15 @@ class InitCommand extends Command
 
         $saveTo = $input->getOption('generate');
 
-        if ($this->confirmGeneration($saveTo)) {
-
-            if ($this->files->put($saveTo, $yaml)) {
-                $output->writeln("<info>Success! <path>{$saveTo}</path> written.</info>");
-            } else {
-                $output->writeln('<error>Failed to save config file.</error>');
-            }
-
-        } else {
-            $output->writeln('<error>Aborted!</error>');
+        if ( ! $this->confirmGeneration($saveTo)) {
+            return $output->writeln('<error>Aborted!</error>');
         }
+
+        if ( ! $this->files->put($saveTo, $yaml)) {
+            return $output->writeln('<error>Failed to save config file.</error>');
+        }
+
+        $output->writeln("<info>Success! <path>{$saveTo}</path> written.</info>");
     }
 
     /**
@@ -150,17 +148,6 @@ class InitCommand extends Command
     {
         $this->output->writeln('');
         $this->output->writeln("<b>$string</b>");
-    }
-
-    /**
-     * Check if a directory is the root of a git repository.
-     *
-     * @param string $dir
-     * @return bool
-     */
-    protected function isGitRepo($dir)
-    {
-        return $this->git->workingCopy($dir)->isCloned();
     }
 
     /**
