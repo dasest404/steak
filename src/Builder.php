@@ -99,9 +99,10 @@ class Builder
      * Remove the contents of a directory, but not the directory itself.
      *
      * @param string $dir
+     * @param bool $preserveGit
      * @return bool
      */
-    public function clean($dir)
+    public function clean($dir, $preserveGit = false)
     {
         $filesystem = new Filesystem();
 
@@ -109,6 +110,17 @@ class Builder
             return $filesystem->makeDirectory($dir, 0755, true);
         }
 
-        return $filesystem->cleanDirectory($dir);
+        foreach (new FilesystemIterator($dir) as $file) {
+            if ($preserveGit && $file->getFilename() == '.git') {
+                continue;
+            }
+            if ($file->isDir() && ! $file->isLink()) {
+                $filesystem->deleteDirectory($file);
+            } else {
+                $filesystem->delete($file);
+            }
+        }
+
+        return true;
     }
 }

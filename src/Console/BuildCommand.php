@@ -81,7 +81,7 @@ class BuildCommand extends Command
 
         });
 
-        $output->writeln("<info>Done in <time>{$total}ms</time>.</info>");
+        $output->writeln("<info>Built in <time>{$total}ms</time></info>");
     }
 
     /**
