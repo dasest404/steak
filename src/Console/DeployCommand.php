@@ -130,7 +130,7 @@ class DeployCommand extends Command
 
         }
 
-        return $workingCopy;
+        return $workingCopy->clearOutput();
     }
 
     /**
@@ -166,7 +166,7 @@ class DeployCommand extends Command
 
         $this->output->writeln("<comment>Pushing to {$this->container['config']['deploy.git']}#{$this->container['config']['deploy.branch']}</comment>");
 
-        $this->output->writeln(
+        $this->output->write(
             $workingCopy->add('.')->commit($this->getCommitMessage())->push()->getOutput(),
             OutputInterface::VERBOSITY_VERBOSE
         );

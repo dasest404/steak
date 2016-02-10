@@ -148,9 +148,9 @@ class BuildCommand extends Command
                 OutputInterface::VERBOSITY_VERBOSE
             );
 
-            if (str_contains($process->getOutput(), 'Local gulp not found')) {
+            if (str_contains($process->getOutput(), 'Local gulp not found') ||  str_contains($process->getErrorOutput(), 'Cannot find module')) {
 
-                $this->output->writeln("<comment>Local gulp not found, attempting install. This might take a minute...</comment>");
+                $this->output->writeln("<comment>Missing npm dependencies, attempting install. This might take a minute...</comment>");
                 $this->output->writeln('  <comment>$</comment> npm install', OutputInterface::VERBOSITY_VERBOSE);
 
                 try {
