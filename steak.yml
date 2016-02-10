@@ -1,0 +1,9 @@
+source: docs/source
+output: build
+deploy:
+    git: 'https://github.com/parsnick/steak.git'
+    branch: gh-pages
+gulp:
+    file: docs/gulpfile.js
+server:
+    directory: steak
