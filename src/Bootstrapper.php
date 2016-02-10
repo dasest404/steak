@@ -16,12 +16,17 @@ use Parsnick\Steak\Publishers\SkipExcluded;
 
 class Bootstrapper
 {
+    /**
+     * Set up the default bindings.
+     *
+     * @param Container $app
+     */
     public function bootstrap(Container $app)
     {
         $app->singleton('files', Filesystem::class);
 
         $app->bind(Builder::class, function ($app) {
-            return new Builder($app, $app['config']['pipeline']);
+            return new Builder($app, $app['config']['build.pipeline']);
         });
 
         $app->bind('skip', SkipExcluded::class);
@@ -45,7 +50,7 @@ class Bootstrapper
 
             $resolver->register('blade', function () use ($app) {
 
-                $cacheDir = $app['config']['cache'];
+                $cacheDir = $app['config']['build.cache'];
 
                 if ( ! $app['files']->exists($cacheDir)) {
                     $app['files']->makeDirectory($cacheDir, 0755, true);

@@ -62,8 +62,8 @@ class BuildCommand extends Command
     {
         $this->setIo($input, $output);
 
-        $sourceDir = $this->container['config']['source'];
-        $outputDir = $this->container['config']['output'];
+        $sourceDir = $this->container['config']['source.directory'];
+        $outputDir = $this->container['config']['build.directory'];
 
         $output->writeln("<info>Compiling <path>{$sourceDir}</path> into <path>{$outputDir}</path></info>");
 
@@ -148,7 +148,7 @@ class BuildCommand extends Command
                 OutputInterface::VERBOSITY_VERBOSE
             );
 
-            if (str_contains($process->getOutput(), 'Local gulp not found') ||  str_contains($process->getErrorOutput(), 'Cannot find module')) {
+            if (str_contains($process->getOutput(), 'Local gulp not found') || str_contains($process->getErrorOutput(), 'Cannot find module')) {
 
                 $this->output->writeln("<comment>Missing npm dependencies, attempting install. This might take a minute...</comment>");
                 $this->output->writeln('  <comment>$</comment> npm install', OutputInterface::VERBOSITY_VERBOSE);

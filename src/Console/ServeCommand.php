@@ -83,8 +83,8 @@ class ServeCommand extends Command
      */
     protected function getServeOptions()
     {
-        $relative = $this->container['config']['server'];
+        $relative = $this->container['config']['serve.subdirectory'];
 
-        return $relative ? ['--subdir', $this->container['config']['server']] : [];
+        return $relative ? ['--subdir', $this->container['config']['serve.subdirectory']] : [];
     }
 }

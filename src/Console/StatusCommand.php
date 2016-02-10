@@ -41,29 +41,31 @@ class StatusCommand extends Command
 
         $table
             ->setRows([
-                ['<b>Builds</b>'],
+                ['<b>Build status</b>'],
                 [' Last build time', $this->formatLastBuildStatus()],
                 [' Last source modified', $this->getSourceLastModifiedTime()->diffForHumans()],
                 [''],
-                ['<b>Directories</b>'],
-                [' Sources', $this->formatDirectoryState($config['source'])],
-                [' Output', $this->formatDirectoryState($config['output'])],
-                [' Blade cache', $this->formatDirectoryState($config['cache'])],
+                ['<b>Sources</b>'],
+                [' Directory', $this->formatDirectoryState($config['source.directory'])],
+                [' Git repository', $this->getSourceRepoStatus()],
                 [''],
-                ['<b>Build deployment</b>'],
-                [' Repository', $config['deploy.git']],
-                [' Branch', $config['deploy.branch']],
+                ['<b>Builds</b>'],
+                [' Output directory', $this->formatDirectoryState($config['build.directory'])],
+                [' Cache directory', $this->formatDirectoryState($config['build.cache'])],
+                [' Pipeline', implode(" | ", $config['build.pipeline'])],
+                [''],
+                ['<b>Deployment</b>'],
+                [' Pushes to', $this->getDeploymentRepoStatus()],
                 [''],
                 ['<b>Gulp</b>'],
                 [' Binary', $config['gulp.bin']],
                 [' Gulpfile', $config['gulp.file']],
                 [''],
                 ['<b>Server</b>'],
-                [' Relative URL', $config['server.directory']],
+                [' Relative URL', $config['serve.subdirectory']],
                 [''],
-                ['<b>Build pipeline</b>', implode("\n", $config['pipeline'])],
-                [''],
-                ['<b>Bootstrapper</b>', $config['bootstrap']],
+                ['<b>Bootstrapper</b>'],
+                [' Class', $config['bootstrap']]
             ])
         ;
 
@@ -75,7 +77,7 @@ class StatusCommand extends Command
      */
     protected function formatLastBuildStatus()
     {
-        $outputDir = $this->container['config']['output'];
+        $outputDir = $this->container['config']['build.directory'];
 
         $date = Carbon::createFromTimestamp($this->container['files']->lastModified($outputDir));
 
@@ -91,7 +93,7 @@ class StatusCommand extends Command
      */
     protected function getSourceLastModifiedTime()
     {
-        $sourceDir = $this->container['config']['source'];
+        $sourceDir = $this->container['config']['source.directory'];
 
         $sourceFiles = iterator_to_array(Finder::create()->in($sourceDir)->files()->sortByModifiedTime(), false);
 
@@ -121,5 +123,35 @@ class StatusCommand extends Command
         }
 
         return "<info>$path</info>";
+    }
+
+    /**
+     * @return string
+     */
+    protected function getSourceRepoStatus()
+    {
+        $config = $this->container['config'];
+
+        if (empty($config['source.git.url'])) {
+            return 'not tracked by steak';
+        }
+
+        return $this->formatDirectoryState($config['source.git.root'] ?: $config['source.directory'])
+            . " pulls from {$config['source.git.url']}#{$config['source.git.branch']}"
+        ;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDeploymentRepoStatus()
+    {
+        $config = $this->container['config'];
+
+        if (empty($config['deploy.git.url'])) {
+            return 'not tracked by steak';
+        }
+
+        return "{$config['deploy.git.url']}#{$config['deploy.git.branch']}";
     }
 }

@@ -87,13 +87,13 @@ class DeployCommand extends Command
     {
         $config = $this->container['config'];
 
-        $this->builder->clean($config['output']); // clear out everything, including .git metadata
+        $this->builder->clean($config['build.directory']); // clear out everything, including .git metadata
 
-        $workingCopy = $this->git->workingCopy($config['output']);
+        $workingCopy = $this->git->workingCopy($config['build.directory']);
 
-        $this->doGitInit($workingCopy, $config['deploy.git'], $config['deploy.branch']); // start again at last commit
+        $this->doGitInit($workingCopy, $config['deploy.git.url'], $config['deploy.git.branch']); // start again at last commit
 
-        $this->builder->clean($config['output'], true); // clear the old content but keep .git folder
+        $this->builder->clean($config['build.directory'], true); // clear the old content but keep .git folder
 
         return $workingCopy;
     }
@@ -125,7 +125,7 @@ class DeployCommand extends Command
 
             $workingCopy
                 ->checkout('--orphan', $branch)
-                ->run(['commit', '--allow-empty', '-m', "$branch created by steak"])
+                ->run(['commit', '--allow-empty', '-m', "Branch created by steak"])
                 ->push('-u', 'origin', $branch);
 
         }
@@ -164,8 +164,6 @@ class DeployCommand extends Command
             return $this->output->writeln('<error>Aborted!</error>');
         }
 
-        $this->output->writeln("<comment>Pushing to {$this->container['config']['deploy.git']}#{$this->container['config']['deploy.branch']}</comment>");
-
         $this->output->write(
             $workingCopy->add('.')->commit($this->getCommitMessage())->push()->getOutput(),
             OutputInterface::VERBOSITY_VERBOSE
@@ -185,7 +183,9 @@ class DeployCommand extends Command
         $this->output->writeln('<info>Ready to deploy changes...</info>');
         $this->output->write($workingCopy->getStatus());
 
-        $confirm = new ConfirmationQuestion("<comment>Commit all and deploy?</comment> [Yn] ");
+        $deployTo = "{$this->container['config']['deploy.git.url']}#{$this->container['config']['deploy.git.branch']}";
+
+        $confirm = new ConfirmationQuestion("<comment>Commit all and push to <path>{$deployTo}</path>?</comment> [Yn] ");
 
         return $this->getHelper('question')->ask($this->input, $this->output, $confirm);
     }
@@ -197,6 +197,6 @@ class DeployCommand extends Command
      */
     protected function getCommitMessage()
     {
-        return sprintf('Updated by steak [%s]', Carbon::now()->toRfc850String());
+        return 'Updated by steak';
     }
 }

@@ -165,13 +165,17 @@ class Application
     public static function getDefaultConfig()
     {
         return [
-            'source' => 'source',
-            'output' => 'build',
             'bootstrap' => Bootstrapper::class,
-            'cache' => '.blade',
-            'pipeline' => [
-                'skip:_*',
-                'blade',
+            'source' => [
+                'directory' => 'source',
+            ],
+            'build' => [
+                'directory' => 'build',
+                'cache' => '.blade',
+                'pipeline' => [
+                    'skip:_*',
+                    'blade',
+                ],
             ],
             'gulp' => [
                 'bin' => 'gulp',

@@ -1,9 +1,19 @@
-source: docs/source
-output: build
+#
+# Source files (blade, markdown, etc.)
+#
+source:
+  directory: docs/source
+
+build:
+  directory: build
+
 deploy:
-    git: 'https://github.com/parsnick/steak.git'
+  git:
+    url: 'https://github.com/parsnick/steak.git'
     branch: gh-pages
+
 gulp:
-    file: docs/gulpfile.js
-server:
-    directory: steak
+  file: docs/gulpfile.js
+
+serve:
+  subdirectory: steak
