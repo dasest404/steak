@@ -23,7 +23,7 @@ class StatusCommand extends Command
     {
         $this
             ->setName('status')
-            ->setDescription('Shows current steak status')
+            ->setDescription('Shows current steak configuration')
         ;
     }
 
@@ -46,21 +46,24 @@ class StatusCommand extends Command
                 [' Last source modified', $this->getSourceLastModifiedTime()->diffForHumans()],
                 [''],
                 ['<b>Directories</b>'],
-                [' Sources', $config['source']],
+                [' Sources', $this->formatDirectoryState($config['source'])],
                 [' Output', $this->formatDirectoryState($config['output'])],
                 [' Blade cache', $this->formatDirectoryState($config['cache'])],
                 [''],
-                ['<b>Git</b>'],
-                [' Source', $this->formatSourceGitStatus()],
-                [' Output', $this->formatOutputGitStatus()],
+                ['<b>Build deployment</b>'],
+                [' Repository', $config['deploy.git']],
+                [' Branch', $config['deploy.branch']],
                 [''],
                 ['<b>Gulp</b>'],
                 [' Binary', $config['gulp.bin']],
                 [' Gulpfile', $config['gulp.file']],
                 [''],
-                ['<b>Build pipe</b>', implode("\n", $config['pipeline'])],
+                ['<b>Server</b>'],
+                [' Relative URL', $config['server.directory']],
                 [''],
-                ['<b>Bootstrap</b>', $config['bootstrap']],
+                ['<b>Build pipeline</b>', implode("\n", $config['pipeline'])],
+                [''],
+                ['<b>Bootstrapper</b>', $config['bootstrap']],
             ])
         ;
 
@@ -118,39 +121,5 @@ class StatusCommand extends Command
         }
 
         return "<info>$path</info>";
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function formatSourceGitStatus()
-    {
-        $sourceDir = $this->container['config']['source'];
-
-        $repo = (new GitWrapper())->workingCopy($sourceDir);
-
-        if ( ! $repo->isCloned()) {
-            return "<comment>no repository found</comment>";
-        }
-
-        // @todo
-        return '';
-    }
-
-    /**
-     * @return string
-     */
-    protected function formatOutputGitStatus()
-    {
-        $outputDir = $this->container['config']['output'];
-
-        $repo = (new GitWrapper())->workingCopy($outputDir);
-
-        if ( ! $repo->isCloned()) {
-            return "<comment>no repository found</comment>";
-        }
-
-        // @todo
-        return '';
     }
 }

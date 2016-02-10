@@ -85,32 +85,23 @@ class InitCommand extends Command
         $generated['output'] = trim($this->ask("Where should the generated site files be created?", "{$config['output']}/"), '/');
 
         $this->title('Deployment via Git');
-        if ($this->isGitRepo($generated['output'])) {
-            $output->writeln(
-                "<comment>git repository detected in {$generated['output']}</comment>",
-                $output::VERBOSITY_VERBOSE
-            );
-
-            // @todo
-
-        } else {
-            $output->writeln(
-                "<comment>No existing repository detected in output directory <path>{$generated['output']}</path></comment>",
-                $output::VERBOSITY_VERBOSE
-            );
-
-            $generated['deploy.git'] = $this->ask(
-                "Specify a target repository for the <path>steak deploy</path> command to use:",
-                $config->get('deploy.git', $this->getPushUrl('.'))
-            );
-            $generated['deploy.branch'] = $this->ask(
-                "Specify the branch to use:",
-                $config->get('deploy.branch', 'gh-pages')
-            );
-        }
+        $generated['deploy.git'] = $this->ask(
+            "Specify a target repository for the <path>steak deploy</path> command to use:",
+            $config->get('deploy.git', $this->getPushUrl('.'))
+        );
+        $generated['deploy.branch'] = $this->ask(
+            "Specify the branch to use:",
+            $config->get('deploy.branch', 'gh-pages')
+        );
 
         $this->title('Gulp integration');
-        $generated['gulp.file'] = $this->ask("Which gulp file should we use?", 'gulpfile.js');
+        $generated['gulp.file'] = $this->ask("Which gulp file should we use to publish non-PHP assets?", $config->get('gulp.file', 'gulpfile.js'));
+
+        $this->title('Local development server');
+        $generated['server.directory'] = $this->ask(
+            "Serve the site in a subdirectory when using <path>steak serve</path>? \nUse your project name to emulate the github-pages behaviour.",
+            $config->get('server.directory') ?: $this->guessSubdirectory($generated['deploy.git'])
+        );
 
         $yaml = $this->createYaml($generated);
 
@@ -187,6 +178,17 @@ class InitCommand extends Command
         }
 
         return null;
+    }
+
+    /**
+     * Guess the subdirectory to serve from to match github pages.
+     *
+     * @param string $deployUrl
+     * @return string
+     */
+    protected function guessSubdirectory($deployUrl)
+    {
+        return $this->git->parseRepositoryName($deployUrl);
     }
 
     /**
