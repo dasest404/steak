@@ -14,7 +14,7 @@ $steak->commands([
     Parsnick\Steak\Console\BuildCommand::class,
     Parsnick\Steak\Console\ServeCommand::class,
     Parsnick\Steak\Console\StatusCommand::class,
-    //Parsnick\Steak\Console\SyncCommand::class,
+    Parsnick\Steak\Console\PullCommand::class,
     Parsnick\Steak\Console\DeployCommand::class,
 ]);
 
