@@ -35,7 +35,7 @@ class Bootstrapper
         $app->bind(Factory::class, function ($app) {
             return new Factory(
                 $app->make(EngineResolver::class),
-                new FileViewFinder($app['files'], [$app['config']['source']]),
+                new FileViewFinder($app['files'], [$app['config']['source.directory']]),
                 new Dispatcher($app)
             );
         });
