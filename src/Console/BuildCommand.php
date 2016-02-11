@@ -126,7 +126,7 @@ class BuildCommand extends Command
     {
         $this->output->writeln("<comment>Starting gulp...</comment>", OutputInterface::VERBOSITY_VERY_VERBOSE);
 
-        $process = $this->createGulpProcess('steak:publish');
+        $process = $this->createGulpProcess('steak:build');
         $callback = $this->getProcessLogger($this->output);
 
         $timer = new Stopwatch();
@@ -156,7 +156,7 @@ class BuildCommand extends Command
                 try {
                     $npmInstallTime = $this->runTimedTask(function () {
                         $cwd = dirname($this->container['config']['gulp.file']);
-                        (new Process('npm install', $cwd))->setTimeout(120)->mustRun();
+                        (new Process('npm install', $cwd))->setTimeout(180)->mustRun();
                     });
 
                     $this->output->writeln("  <comment>npm installed in in <time>{$npmInstallTime}ms</time></comment>", OutputInterface::VERBOSITY_VERBOSE);

@@ -78,7 +78,7 @@ abstract class Command extends SymfonyCommand
             '--source', $config['source.directory'],
             '--dest', $config['build.directory'],
             '--gulpfile', $config['gulp.file'],
-            '--cwd', getcwd(),
+            '--phpwd', getcwd(),
             '--color',
         ]))
         ->getProcess();
@@ -93,10 +93,10 @@ abstract class Command extends SymfonyCommand
         return function ($type, $buffer) use ($output) {
 
             if ($type === Process::ERR) {
-                $output->writeln("<error>$buffer</error>");
+                $output->write($buffer, false, OutputInterface::OUTPUT_RAW);
             }
 
-            $output->write($buffer, false, $output::VERBOSITY_VERY_VERBOSE);
+            $output->write($buffer, false, OutputInterface::VERBOSITY_VERY_VERBOSE | OutputInterface::OUTPUT_RAW);
         };
     }
 
