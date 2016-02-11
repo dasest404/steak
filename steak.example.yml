@@ -1,0 +1,101 @@
+#---------------------------------------------------------------------
+# This is an example configuration file that shows all the available
+# options. You can use the `steak init` command to set most of these
+# values but for advanced usage, you might need to make manual changes.
+#---------------------------------------------------------------------
+
+#
+# Source files (blade, markdown, etc.)
+#
+source:
+
+  # This is the directory from which steak will build your site.
+  # It is the only required value in this section.
+  directory: docs/source
+
+  # If you want to keep your source files under version control, you can set
+  # the git repository and branch to use.
+  # This is only required if you want to keep the sources in a *different*
+  # repo/branch to the main project. Otherwise, you can leave this blank
+  # and just commit the sources as part of your normal git workflow.
+  git:
+    url: 'https://github.com/parsnick/steak.git'
+    branch: gh-pages-src
+
+    # Think of the source.directory defined above as the webroot.
+    # You may have other dependencies and build tool configurations
+    # that you also want to keep under version control but should not
+    # form part of the generated site. To do so, set the source Git root.
+    # This can be used to drastically reduce the number of files that
+    # steak needs to process or watch - for example, you might want to
+    # keep node_modules outside the source.directory.
+    root: docs
+
+
+#
+# The build takes the source.directory and creates a static HTML site.
+# Configure it here.
+#
+build:
+
+  # This is the directory where the generated static HTML files will be saved.
+  directory: build
+
+  # *.blade.php files compile to standard .php files, and are cached in
+  # the directory set here.
+  # Note: this value is not asked for during `steak init`.
+  cache: .blade
+
+  # The build pipeline itself is similar to middleware in Laravel.
+  # 'skip' and 'blade' are registered bindings in the container, used
+  # only for convenience. You can also use a FQCN.
+  # Source files are sent along the pipeline, and each handler can process
+  # the file itself and/or pass it to the next step.
+  # The ':' denotes arguments to send alongside the source files to the handler
+  # in this case, we're passing "_*" as a pattern that should be skipped.
+  # Note: this value is not asked for during `steak init`.
+  pipeline: [ skip:_*, blade ]
+
+
+#
+# `steak deploy` builds your site and pushes to the repository and
+# branch specified here. For github pages, use the gh-pages branch.
+#
+deploy:
+  git:
+    url: 'https://github.com/parsnick/steak.git'
+    branch: gh-pages
+
+
+#
+# The gulp taskrunner is responsible for
+#   1. copying static assets from source.directory to build.directory
+#   2. running the development server and rebuilding the site on file change
+#
+gulp:
+
+  # If you need to use a different binary to run gulp, set it here.
+  # Note: this value is not asked for during `steak init`.
+  bin: gulp
+
+  # Location of the gulpfile that provides steak:publish and steak:serve tasks.
+  file: docs/gulpfile.js
+
+
+#
+# `steak serve` can publish your site in a subdirectory.
+# This is mainly useful for sites destined for github pages, where the
+# webroot will be http://username.github.io/projectname/
+# To help avoid any issues with relative paths, you can emulate this
+# behaviour by having steak also serve from a /projectname/ directory.
+#
+serve:
+  subdirectory: steak
+
+#
+# The bootstrapper is used to set up bindings with Laravel's container.
+# For customising steak, you'll likely want to replace this - see the
+# existing class for inspiration.
+# Note: this value is not asked for during `steak init`.
+#
+bootstrap: Parsnick\Steak\Bootstrapper
