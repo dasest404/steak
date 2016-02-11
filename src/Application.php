@@ -173,7 +173,7 @@ class Application
                 'directory' => 'build',
                 'cache' => '.blade',
                 'pipeline' => [
-                    'skip:_*',
+                    'skip:_*,node_modules',
                     'blade',
                 ],
             ],
