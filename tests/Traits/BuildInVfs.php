@@ -70,7 +70,7 @@ trait BuildInVfs
 
         $container['config']['cache'] = vfsStream::url('root/.blade');
 
-        $builder = new Builder($container, $container['config']['pipeline']);
+        $builder = new Builder($container, $container['config']['build.pipeline']);
 
         return $builder->build(
             vfsStream::url('root/source'),
