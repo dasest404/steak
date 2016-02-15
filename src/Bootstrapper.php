@@ -40,6 +40,17 @@ class Bootstrapper
             );
         });
 
+        $app->bind('compilers.blade', function ($app) {
+
+            $cacheDir = $app['config']['build.cache'];
+
+            if ( ! $app['files']->exists($cacheDir)) {
+                $app['files']->makeDirectory($cacheDir, 0755, true);
+            }
+
+            return new BladeCompiler($app['files'], $cacheDir);
+        });
+
         $app->bind(EngineResolver::class, function ($app) {
 
             $resolver = new EngineResolver();
@@ -49,19 +60,29 @@ class Bootstrapper
             });
 
             $resolver->register('blade', function () use ($app) {
-
-                $cacheDir = $app['config']['build.cache'];
-
-                if ( ! $app['files']->exists($cacheDir)) {
-                    $app['files']->makeDirectory($cacheDir, 0755, true);
-                }
-
-                return new CompilerEngine(
-                    new BladeCompiler($app['files'], $cacheDir)
-                );
+                return new CompilerEngine($app['compilers.blade']);
             });
 
             return $resolver;
+        });
+
+        $app->afterResolving('compilers.blade', function (BladeCompiler $compiler) {
+
+            $compiler->directive('highlight', function ($expression) {
+                if (is_null($expression)) {
+                    $expression = "('php')";
+                }
+                return "<?php \$__env->startSection{$expression}; ?>";
+            });
+
+            $compiler->directive('endhighlight', function () {
+                return "<?php \$last = \$__env->stopSection(); echo \$__highlighter->highlight(\$__env->yieldContent(\$last), \$last); ?>";
+            });
+
+        });
+
+        $app->afterResolving(function (Factory $factory, $app) {
+            $factory->share('__highlighter', $app->make(Highlighter::class));
         });
     }
 }
