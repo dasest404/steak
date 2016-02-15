@@ -68,7 +68,7 @@ class PullCommand extends Command
         /** @var Repository $config */
         $config = $this->container['config'];
 
-        $sourceRepoPath = $config['source.git.root'];
+        $sourceRepoPath = $config['source.directory'];
         $sourceRepoUrl = $config['source.git.url'];
         $sourceRepoBranch = $config['source.git.branch'];
 

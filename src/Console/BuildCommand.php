@@ -155,8 +155,7 @@ class BuildCommand extends Command
 
                 try {
                     $npmInstallTime = $this->runTimedTask(function () {
-                        $cwd = dirname($this->container['config']['gulp.file']);
-                        (new Process('npm install', $cwd))->setTimeout(180)->mustRun();
+                        (new Process('npm install', $this->container['config']['source.directory']))->setTimeout(180)->mustRun();
                     });
 
                     $this->output->writeln("  <comment>npm installed in in <time>{$npmInstallTime}ms</time></comment>", OutputInterface::VERBOSITY_VERBOSE);

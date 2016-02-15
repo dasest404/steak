@@ -77,7 +77,7 @@ abstract class Command extends SymfonyCommand
             $options,
             '--source', $config['source.directory'],
             '--dest', $config['build.directory'],
-            '--gulpfile', $config['gulp.file'],
+            '--gulpfile', $config['source.directory'] . DIRECTORY_SEPARATOR . $config['gulp.file'],
             '--phpwd', getcwd(),
             '--color',
         ]))

@@ -148,13 +148,9 @@ ASCI;
 
             if ($this->confirm('Would you like to store your steak sources in a <b>separate</b> repo/branch?', false)) {
 
-                $source['git.root'] = $this->ask(
+                $source['git.directory'] = $this->ask(
                     "Where should we check out the site sources <b>repository</b>?",
-                    $config->get('source.git.root', 'steak')
-                );
-                $source['directory'] = $this->ask(
-                    "Where should we look for the <b>source files</b> that make up the site?",
-                    $this->guessSourceSubdirectory($config['source.directory'], $source['git.root'])
+                    $config->get('source.directory', 'steak')
                 );
                 // @todo if the sources repo already exists, try reading values from there instead of config?
                 $source['git.url'] = $this->ask(
@@ -186,13 +182,9 @@ ASCI;
 
             if ($this->confirm('Would you like to store your steak sources in a git repo?')) {
 
-                $source['git.root'] = $this->ask(
-                    "Where should we check out the site sources <b>repository</b>?",
-                    $config->get('source.git.root', 'steak')
-                );
                 $source['directory'] = $this->ask(
-                    "Where should we look for the <b>source files</b> that make up the site?",
-                    $this->guessSourceSubdirectory($config['source.directory'], $source['git.root'])
+                    "Where should we check out the site sources <b>repository</b>?",
+                    $config->get('source.directory', 'steak')
                 );
                 $source['git.url'] = $this->ask(
                     "Enter the source repository URL:",
@@ -484,25 +476,6 @@ ASCI;
             ->workingCopy($dir)
             ->run(['rev-parse', '--abbrev-ref', 'HEAD'])
             ->getOutput());
-    }
-
-    /**
-     * Suggest a source.directory when source.git.root already exists.
-     *
-     * Since source.directory should always be a subdirectory of source.git.root,
-     * we check if that is the case before suggesting the existing config value.
-     *
-     * @param string $existingConfigValue
-     * @param string $newVcsRoot
-     * @return string
-     */
-    protected function guessSourceSubdirectory($existingConfigValue, $newVcsRoot)
-    {
-        if ($existingConfigValue && starts_with($existingConfigValue, $newVcsRoot)) {
-            return $existingConfigValue;
-        }
-
-        return $newVcsRoot . '/sources';
     }
 
     /**

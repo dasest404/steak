@@ -47,7 +47,7 @@ class StatusCommand extends Command
                 [''],
                 ['<b>Sources</b>'],
                 [' Directory', $this->formatDirectoryState($config['source.directory'])],
-                [' Git repository', $this->getSourceRepoStatus()],
+                [' Git repository', $this->getSourceRepo()],
                 [''],
                 ['<b>Builds</b>'],
                 [' Output directory', $this->formatDirectoryState($config['build.directory'])],
@@ -55,11 +55,11 @@ class StatusCommand extends Command
                 [' Pipeline', implode(" | ", $config['build.pipeline'])],
                 [''],
                 ['<b>Deployment</b>'],
-                [' Pushes to', $this->getDeploymentRepoStatus()],
+                [' Pushes to', $this->getDeploymentRepo()],
                 [''],
                 ['<b>Gulp</b>'],
                 [' Binary', $config['gulp.bin']],
-                [' Gulpfile', $config['gulp.file']],
+                [' Gulpfile', $config['source.directory'] . DIRECTORY_SEPARATOR . $config['gulp.file']],
                 [''],
                 ['<b>Server</b>'],
                 [' Relative URL', $config['serve.subdirectory']],
@@ -128,7 +128,7 @@ class StatusCommand extends Command
     /**
      * @return string
      */
-    protected function getSourceRepoStatus()
+    protected function getSourceRepo()
     {
         $config = $this->container['config'];
 
@@ -136,15 +136,13 @@ class StatusCommand extends Command
             return 'not tracked by steak';
         }
 
-        return $this->formatDirectoryState($config['source.git.root'] ?: $config['source.directory'])
-            . " pulls from {$config['source.git.url']}#{$config['source.git.branch']}"
-        ;
+        return "{$config['source.git.url']}#{$config['source.git.branch']}";
     }
 
     /**
      * @return string
      */
-    protected function getDeploymentRepoStatus()
+    protected function getDeploymentRepo()
     {
         $config = $this->container['config'];
 
