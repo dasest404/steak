@@ -22,15 +22,6 @@ source:
     url: 'https://github.com/parsnick/steak.git'
     branch: gh-pages-src
 
-    # Think of the source.directory defined above as the webroot.
-    # You may have other dependencies and build tool configurations
-    # that you also want to keep under version control but should not
-    # form part of the generated site. To do so, set the source Git root.
-    # This can be used to drastically reduce the number of files that
-    # steak needs to process or watch - for example, you might want to
-    # keep node_modules outside the source.directory.
-    root: docs
-
 
 #
 # The build takes the source.directory and creates a static HTML site.
