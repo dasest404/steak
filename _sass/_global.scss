@@ -1,0 +1,36 @@
+//
+// Site-wide styles
+//
+@import url(https://fonts.googleapis.com/css?family=Roboto:300);
+
+body {
+  background-color: #FFFFFF;
+}
+
+a {
+  color: $tertiaryColor;
+}
+
+code.terminal {
+  &::before {
+    content: '$';
+    opacity: 0.5;
+    padding-right: 0.5em;
+    user-select: none;
+  }
+}
+
+.acronym {
+  font-size: 0.98em;
+  letter-spacing: -0.05em;
+}
+
+.help.popup {
+  cursor: help;
+  border-bottom: 1px dotted $tertiaryColor;
+}
+
+.ui.code.segment {
+  padding: 0;
+  background: #f5f2f0;
+}
