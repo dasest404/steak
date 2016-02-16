@@ -1,6 +1,3 @@
-#
-# Source files (blade, markdown, etc.)
-#
 source:
   directory: docs
   git:
