@@ -9,6 +9,7 @@
 
     <base href="/steak/">
 
+    <link rel="icon" type="image/png" href="assets/logo.png">
     <link rel="stylesheet" href="vendor/all.css">
     <link rel="stylesheet" href="assets/site.css">
 
@@ -26,6 +27,28 @@
             <h1 class="ui inverted header tagline">
                 simplified publishing to <a href="https://pages.github.com/" title="&quot;Websites for you and your projects&quot;">GitHub Pages</a> for your <span class="acronym">PHP</span> project
             </h1>
+
+        </div>
+
+    </div>
+
+
+    <div class="ui large borderless main menu">
+
+        <div class="ui container">
+
+            <a href="." class="header item">
+    <img class="logo" src="assets/logo.png">
+</a>
+<a href="quick-start.html" class="item">Quick start</a>
+<a href="configuration.html" class="item">Configuration</a>
+<a href="extending-steak.html" class="item">Extending steak</a>
+
+<a href="https://github.com/parsnick/steak" class="right floated item">
+    <i class="github icon"></i>
+    View on GitHub
+</a>
+
 
         </div>
 
@@ -372,10 +395,10 @@ build: { directory: output }</code></pre>            </div>
 
             <div class="ui big header">So what exactly <em>is</em> <code>steak</code>?</div>
 
-            <div class="ui dividing sub header">1) a git wrapper</div>
+            <div class="ui dividing sub header">1) a few git aliases</div>
 
             <p>
-                <code>steak pull</code> and <code>steak deploy</code> provide convenient aliases
+                <code class="terminal">steak pull</code> and <code class="terminal">steak deploy</code> provide convenient aliases
                 for cloning your project's site
                 sources<span class="help popup" data-content="(if not kept in the main project repository)">*</span>
                 and pushing the latest build respectively.
@@ -386,42 +409,49 @@ build: { directory: output }</code></pre>            </div>
             <div class="ui dividing sub header">2) <span class="acronym">PHP</span> and gulp build system</div>
 
             <p>
-                <code>steak build</code> takes a set of PHP files and runs them through a simple
-                but customisable build pipeline. In addition, it executes a <code>gulp steak:build</code> command
+                <code class="terminal">steak build</code> takes a set of PHP files and runs them through a simple
+                but customisable build pipeline. In addition, it executes a <code class="terminal">gulp steak:build</code> command
                 (soon to be an arbitrary build command) to copy across any static assets, compile
                 <span class="acronym">SASS</span>, or whatever else you may need.
             </p>
 
-            <div class="ui big header">And what steak is <em>not</em></div>
+            <div class="ui big header">And what <code>steak</code> is <em>not</em></div>
             <p>
-                Behind the scenes, steak uses the <a href="https://github.com/illuminate/view">View</a> component from
-                Laravel. It comes pre-configured with the <a href="https://laravel.com/docs/5.2/blade">Blade</a> templating
-                engine and a <a href="https://github.com/michelf/php-markdown">Markdown engine</a> to get you started.
-                The real aim of <code>steak</code> - however - is not so much a complete publishing solution akin to Jekyll,
-                but rather providing a way of generating a static site for your project using your preferred tools and
-                existing knowledge.
+                Behind the scenes, <code>steak</code> uses the <a href="https://github.com/illuminate/view">View</a>
+                component from Laravel. It comes pre-configured with the <a href="https://laravel.com/docs/5.2/blade">Blade</a>
+                templating engine and a <a href="https://github.com/michelf/php-markdown">Markdown engine</a> to get you
+                started. The real aim of <code>steak</code> - however - is not so much a complete publishing solution
+                akin to Jekyll, but rather a means of generating a static site using your preferred tools and existing
+                knowledge.
             </p>
         </div>
 
     </div>
 
     <div class="ui inverted vertical footer segment">
-        <div class="ui container">
-
-            <a href="https://github.com/parsnick/steak" class="ui inverted large right floated button">
-                <i class="github icon"></i>
-                View on GitHub
-            </a>
-
-            <div class="ui large inverted horizontal divided link list">
-                <a class="active item">Overview</a>
-                <a href="quick-start.html" class="item">Quick start</a>
-                <a href="configuration.html" class="item">Configuration</a>
-                <a href="extending-steak.html" class="item">Extending steak</a>
+        <div class="ui grid container">
+            <div class="ten wide column">
+                <div class="ui inverted sub header">
+                    License
+                </div>
+                MIT
             </div>
-
+            <div class="six wide column">
+                <ul class="ui list">
+                    <li class="item">
+                        Hosted by <a href="https://pages.github.com/">GitHub Pages</a>
+                    </li>
+                    <li class="item">
+                        Built and deployed by <code>steak</code>
+                    </li>
+                    <li class="item">
+                        Uses <a href="http://semantic-ui.com/">semantic ui</a> front-end framework
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
+
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <script src="vendor/all.js"></script>
@@ -432,6 +462,11 @@ build: { directory: output }</code></pre>            </div>
                 })
         ;
     </script>
-    
+    <script>
+    // fix main menu to page on passing
+    $('.main.menu').visibility({
+        type: 'fixed'
+    });
+</script>
 </body>
 </html>
