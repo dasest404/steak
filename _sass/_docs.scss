@@ -1,0 +1,12 @@
+//
+// Styles for 'docs' layout
+//
+.docs.content {
+  padding: 10em 0; // add padding where fixed menu covers page
+
+  & > .container > .ui.basic.segment {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+

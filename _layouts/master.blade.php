@@ -9,6 +9,7 @@
 
     <base href="/steak/">
 
+    <link rel="icon" type="image/png" href="assets/logo.png">
     <link rel="stylesheet" href="vendor/all.css">
     <link rel="stylesheet" href="assets/site.css">
 

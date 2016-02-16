@@ -19,6 +19,17 @@
 
     </div>
 
+
+    <div class="ui large borderless main menu">
+
+        <div class="ui container">
+
+            @include('_partials.menu')
+
+        </div>
+
+    </div>
+
     <div class="ui vertical clearing segment">
 
         <div class="ui container">
@@ -113,13 +124,13 @@
 
     </div>
 
-    <div class="ui vertical segment">
+    <div class="ui vertical inverted segment">
 
         <div class="ui very relaxed grid container">
 
             <div class="ten wide column">
 
-                <div class="ui big header">
+                <div class="ui big inverted header">
                     A minimal example&hellip;
                 </div>
 
@@ -203,25 +214,27 @@ build: { directory: output }
 
             <p>
                 Some tasks just aren't well suited to <span class="acronym">PHP</span>, and for those
-                we can defer to gulp.
+                we can defer to gulp. The <code>steak</code> application triggers two gulp tasks, which it expects
+                to find in a <code>gulpfile.js</code> alongside your source files.
             </p>
 
-            <div class="ui secondary inverted segment">
-                <h3 class="ui header">
-                    <i class="configure icon"></i>
-                    <div class="content">
-                        refactor required
-                    </div>
-                </h3>
-                <p>
-                    There's currently a hard dependency on gulp with <code>steak:build</code> and <code>steak:serve</code>
-                    as required tasks in your source's gulpfile.
-                </p>
+            <div class="ui small header">
+                steak:build
             </div>
+            <p>
+                This provides an opportunity to copy across static assets (images, fonts, etc.) as well
+                compiling <span class="acronym">SASS</span>, browserifying scripts, etc.
+                It is executed from within the <code class="terminal">steak build</code> command <em>after</em>
+                the <span class="acronym">PHP</span> files have been compiled.
+            </p>
 
-            @highlight
-            // todo - the rest of these docs...
-            @endhighlight
+            <div class="ui small header">
+                steak:serve
+            </div>
+            <p>
+                This should start a server and watch the source files to rebuild on change. It is executed as part of
+                the <code class="terminal">steak serve</code> command.
+            </p>
 
         </div>
     </div>
@@ -232,10 +245,10 @@ build: { directory: output }
 
             <div class="ui big header">So what exactly <em>is</em> <code>steak</code>?</div>
 
-            <div class="ui dividing sub header">1) a git wrapper</div>
+            <div class="ui dividing sub header">1) a few git aliases</div>
 
             <p>
-                <code>steak pull</code> and <code>steak deploy</code> provide convenient aliases
+                <code class="terminal">steak pull</code> and <code class="terminal">steak deploy</code> provide convenient aliases
                 for cloning your project's site
                 sources<span class="help popup" data-content="(if not kept in the main project repository)">*</span>
                 and pushing the latest build respectively.
@@ -246,47 +259,56 @@ build: { directory: output }
             <div class="ui dividing sub header">2) <span class="acronym">PHP</span> and gulp build system</div>
 
             <p>
-                <code>steak build</code> takes a set of PHP files and runs them through a simple
-                but customisable build pipeline. In addition, it executes a <code>gulp steak:build</code> command
+                <code class="terminal">steak build</code> takes a set of PHP files and runs them through a simple
+                but customisable build pipeline. In addition, it executes a <code class="terminal">gulp steak:build</code> command
                 (soon to be an arbitrary build command) to copy across any static assets, compile
                 <span class="acronym">SASS</span>, or whatever else you may need.
             </p>
 
-            <div class="ui big header">And what steak is <em>not</em></div>
+            <div class="ui big header">And what <code>steak</code> is <em>not</em></div>
             <p>
-                Behind the scenes, steak uses the <a href="https://github.com/illuminate/view">View</a> component from
-                Laravel. It comes pre-configured with the <a href="https://laravel.com/docs/5.2/blade">Blade</a> templating
-                engine and a <a href="https://github.com/michelf/php-markdown">Markdown engine</a> to get you started.
-                The real aim of <code>steak</code> - however - is not so much a complete publishing solution akin to Jekyll,
-                but rather providing a way of generating a static site for your project using your preferred tools and
-                existing knowledge.
+                Behind the scenes, <code>steak</code> uses the <a href="https://github.com/illuminate/view">View</a>
+                component from Laravel. It comes pre-configured with the <a href="https://laravel.com/docs/5.2/blade">Blade</a>
+                templating engine and a <a href="https://github.com/michelf/php-markdown">Markdown engine</a> to get you
+                started. The real aim of <code>steak</code> - however - is not so much a complete publishing solution
+                akin to Jekyll, but rather a means of generating a static site using your preferred tools and existing
+                knowledge.
             </p>
         </div>
 
     </div>
 
     <div class="ui inverted vertical footer segment">
-        <div class="ui container">
-
-            <a href="https://github.com/parsnick/steak" class="ui inverted large right floated button">
-                <i class="github icon"></i>
-                View on GitHub
-            </a>
-
-            <div class="ui large inverted horizontal divided link list">
-                <a class="active item">Overview</a>
-                <a href="quick-start.html" class="item">Quick start</a>
-                <a href="configuration.html" class="item">Configuration</a>
-                <a href="extending-steak.html" class="item">Extending steak</a>
+        <div class="ui grid container">
+            <div class="ten wide column">
+                <div class="ui inverted sub header">
+                    License
+                </div>
+                MIT
             </div>
-
+            <div class="six wide column">
+                <ul class="ui list">
+                    <li class="item">
+                        Hosted by <a href="https://pages.github.com/">GitHub Pages</a>
+                    </li>
+                    <li class="item">
+                        Built and deployed by <code>steak</code>
+                    </li>
+                    <li class="item">
+                        Uses <a href="http://semantic-ui.com/">semantic ui</a> front-end framework
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
+
 @stop
 
-
-
-
 @push('scripts')
-
+<script>
+    // fix main menu to page on passing
+    $('.main.menu').visibility({
+        type: 'fixed'
+    });
+</script>
 @endpush

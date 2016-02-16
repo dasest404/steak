@@ -1,7 +1,6 @@
 //
 // Homepage styles
 //
-
 .masthead {
   padding: 6em 0;
   background: radial-gradient(circle, lighten($primaryColor, 3%), $primaryColor);
@@ -33,7 +32,20 @@
 
 .homepage {
 
-  .ui.vertical.segment:not(.footer) {
+  .main.menu {
+    border-radius: 0;
+    margin: 0;
+    box-shadow: none;
+    transition: box-shadow 0.5s ease, padding 0.5s ease;
+
+    &.fixed {
+      background-color: #FFFFFF;
+      border: 1px solid #DDD;
+      box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .ui.vertical.segment {
     padding: 5em 0;
     font-size: 1.4rem;
 
@@ -87,13 +99,13 @@
     }
   }
 
-  .ui.footer {
-    .ui.horizontal.link.list {
-      margin: 1em auto;
-    }
-    .ui.right.floated.button {
-      margin-top: 0.4em;
+  .ui.vertical.segment.footer {
+    font-size: 1em;
+    margin: 0;
+
+    a {
+      color: #fff;
+      text-decoration: underline;
     }
   }
-
-} // .homepage
+}
