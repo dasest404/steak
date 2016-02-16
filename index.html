@@ -148,13 +148,13 @@
 
     </div>
 
-    <div class="ui vertical segment">
+    <div class="ui vertical inverted segment">
 
         <div class="ui very relaxed grid container">
 
             <div class="ten wide column">
 
-                <div class="ui big header">
+                <div class="ui big inverted header">
                     A minimal example&hellip;
                 </div>
 
@@ -369,23 +369,28 @@ build: { directory: output }</code></pre>            </div>
 
             <p>
                 Some tasks just aren't well suited to <span class="acronym">PHP</span>, and for those
-                we can defer to gulp.
+                we can defer to gulp. The <code>steak</code> application triggers two gulp tasks, which it expects
+                to find in a <code>gulpfile.js</code> alongside your source files.
             </p>
 
-            <div class="ui secondary inverted segment">
-                <h3 class="ui header">
-                    <i class="configure icon"></i>
-                    <div class="content">
-                        refactor required
-                    </div>
-                </h3>
-                <p>
-                    There's currently a hard dependency on gulp with <code>steak:build</code> and <code>steak:serve</code>
-                    as required tasks in your source's gulpfile.
-                </p>
+            <div class="ui small header">
+                steak:build
             </div>
+            <p>
+                This provides an opportunity to copy across static assets (images, fonts, etc.) as well
+                compiling <span class="acronym">SASS</span>, browserifying scripts, etc.
+                It is executed from within the <code class="terminal">steak build</code> command <em>after</em>
+                the <span class="acronym">PHP</span> files have been compiled.
+            </p>
 
-            <pre><code class="language-php">// todo - the rest of these docs...</code></pre>
+            <div class="ui small header">
+                steak:serve
+            </div>
+            <p>
+                This should start a server and watch the source files to rebuild on change. It is executed as part of
+                the <code class="terminal">steak serve</code> command.
+            </p>
+
         </div>
     </div>
 
