@@ -51,7 +51,6 @@ class StatusCommand extends Command
                 [''],
                 ['<b>Builds</b>'],
                 [' Output directory', $this->formatDirectoryState($config['build.directory'])],
-                [' Cache directory', $this->formatDirectoryState($config['build.cache'])],
                 [' Pipeline', implode(" | ", $config['build.pipeline'])],
                 [''],
                 ['<b>Deployment</b>'],

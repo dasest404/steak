@@ -32,11 +32,6 @@ build:
   # This is the directory where the generated static HTML files will be saved.
   directory: build
 
-  # *.blade.php files compile to standard .php files, and are cached in
-  # the directory set here.
-  # Note: this value is not asked for during `steak init`.
-  cache: .blade
-
   # The build pipeline itself is similar to middleware in Laravel.
   # 'skip' and 'blade' are registered bindings in the container, used
   # only for convenience. You can also use a FQCN.
