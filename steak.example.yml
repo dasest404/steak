@@ -11,7 +11,7 @@ source:
 
   # This is the directory from which steak will build your site.
   # It is the only required value in this section.
-  directory: docs/source
+  directory: docs
 
   # If you want to keep your source files under version control, you can set
   # the git repository and branch to use.
@@ -40,7 +40,7 @@ build:
   # The ':' denotes arguments to send alongside the source files to the handler
   # in this case, we're passing "_*" as a pattern that should be skipped.
   # Note: this value is not asked for during `steak init`.
-  pipeline: [ skip:_*, blade ]
+  pipeline: [ skip:_*,node_modules, compile:php,md ]
 
 
 #
@@ -80,8 +80,9 @@ serve:
 
 #
 # The bootstrapper is used to set up bindings with Laravel's container.
-# For customising steak, you'll likely want to replace this - see the
-# existing class for inspiration.
-# Note: this value is not asked for during `steak init`.
+# For customising steak, you'll likely want to add something here...
+# It can be a single value or an array of multiple bootstrap classes,
+# with each value being a FQCN for a class that implements
+# Parsnick\Steak\Boot\Bootable
 #
-bootstrap: Parsnick\Steak\Bootstrapper
+bootstrap: My\Custom\Bootstrap

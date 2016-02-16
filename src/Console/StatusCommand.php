@@ -63,8 +63,8 @@ class StatusCommand extends Command
                 ['<b>Server</b>'],
                 [' Relative URL', $config['serve.subdirectory']],
                 [''],
-                ['<b>Bootstrapper</b>'],
-                [' Class', $config['bootstrap']]
+                ['<b>Extensions</b>'],
+                [' Bootstrap classes', $config['bootstrap'] ?: '(none)']
             ])
         ;
 

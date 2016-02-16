@@ -16,7 +16,7 @@ class RunBootstrapsFromConfig implements Bootable
         $toBoot = (array) $app['config']->get('bootstrap', []);
 
         foreach ($toBoot as $bootstrapClass) {
-            $app->make($bootstrapClass)->boot($this);
+            $app->make($bootstrapClass)->boot($app);
         }
     }
 }
