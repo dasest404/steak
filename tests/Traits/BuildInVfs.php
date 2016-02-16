@@ -4,11 +4,19 @@ namespace Parsnick\Steak\Tests\Traits;
 
 use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
+use Illuminate\Events\Dispatcher;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\View\Compilers\BladeCompiler;
+use Illuminate\View\Engines\CompilerEngine;
+use Illuminate\View\Engines\EngineResolver;
+use Illuminate\View\Engines\PhpEngine;
+use Illuminate\View\Factory;
+use Illuminate\View\FileViewFinder;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use Parsnick\Steak\Application;
-use Parsnick\Steak\Bootstrapper;
-use Parsnick\Steak\Builder;
+use Parsnick\Steak\Build\Builder;
+use Parsnick\Steak\Build\Publishers\Compile;
+use Parsnick\Steak\Build\Publishers\Skip;
 
 trait BuildInVfs
 {
@@ -20,7 +28,11 @@ trait BuildInVfs
     /** @before */
     function create_virtual_filesystem()
     {
-        $this->fs = vfsStream::setup('root');
+        $this->fs = vfsStream::setup('test', null, [
+            'source' => [],
+            'build' => [],
+            '.cache' => [],
+        ]);
     }
 
     /**
@@ -65,16 +77,33 @@ trait BuildInVfs
     {
         $container = new Container();
 
-        $container->instance('config', new Repository(Application::getDefaultConfig()));
-        $container->make(Bootstrapper::class)->bootstrap($container);
+        $container->singleton('files', Filesystem::class);
 
-        $container['config']['cache'] = vfsStream::url('root/.blade');
+        $container->bind(Factory::class, function ($app) {
+            return new Factory(
+                $app->make(EngineResolver::class),
+                new FileViewFinder($app['files'], ['test/source']),
+                new Dispatcher($app)
+            );
+        });
 
-        $builder = new Builder($container, $container['config']['build.pipeline']);
+        $container->afterResolving(function (Factory $factory, $app) {
+
+            $factory->addExtension('php', 'php', function () {
+                return new PhpEngine();
+            });
+
+            $factory->addExtension('blade.php', 'blade', function () use ($app) {
+                return new CompilerEngine(new BladeCompiler($app['files'], vfsStream::url('test/.cache')));
+            });
+
+        });
+
+        $builder = new Builder($container, [Skip::class.':_*', Compile::class]);
 
         return $builder->build(
-            vfsStream::url('root/source'),
-            vfsStream::url('root/build')
+            vfsStream::url('test/source'),
+            vfsStream::url('test/build')
         );
     }
 
@@ -90,7 +119,7 @@ trait BuildInVfs
             if (is_array($value)) {
                 $this->seeGenerated($value, "$prefix/$name");
             } else {
-                $url = vfsStream::url("root/build/$prefix/$name");
+                $url = vfsStream::url("test/build/$prefix/$name");
                 assertFileExists($url);
 
                 if ($value) {
@@ -112,7 +141,7 @@ trait BuildInVfs
             if (is_array($item)) {
                 $this->dontSeeGenerated($item, "$prefix/$key");
             } else {
-                $url = vfsStream::url("root/build/$prefix/$key");
+                $url = vfsStream::url("test/build/$prefix/$key");
                 assertFileNotExists($url);
 
                 if ($item) {

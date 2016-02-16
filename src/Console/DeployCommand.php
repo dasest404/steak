@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use GitWrapper\GitException;
 use GitWrapper\GitWorkingCopy;
 use GitWrapper\GitWrapper;
-use Parsnick\Steak\Builder;
+use Parsnick\Steak\Build\Builder;
 use SplFileInfo;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;

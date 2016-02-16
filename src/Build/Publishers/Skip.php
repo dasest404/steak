@@ -1,11 +1,11 @@
 <?php
 
-namespace Parsnick\Steak\Publishers;
+namespace Parsnick\Steak\Build\Publishers;
 
 use Closure;
 use Parsnick\Steak\Source;
 
-class SkipExcluded
+class Skip
 {
     /**
      * Publish a source file and/or pass to $next.
@@ -15,7 +15,7 @@ class SkipExcluded
      * @param array $excluded
      * @return mixed
      */
-    public function publish(Source $source, Closure $next, ...$excluded)
+    public function handle(Source $source, Closure $next, ...$excluded)
     {
         foreach ($excluded as $pattern) {
 

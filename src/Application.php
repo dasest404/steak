@@ -5,6 +5,10 @@ namespace Parsnick\Steak;
 use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
+use Parsnick\Steak\Boot\ConfigureViewEngines;
+use Parsnick\Steak\Boot\RegisterBladeExtensions;
+use Parsnick\Steak\Boot\RunBootstrapsFromConfig;
+use Parsnick\Steak\Boot\RegisterCoreBindings;
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -30,6 +34,16 @@ class Application
     protected $output;
 
     /**
+     * @var array
+     */
+    protected $bootClasses = [
+        RegisterCoreBindings::class,
+        ConfigureViewEngines::class,
+        RegisterBladeExtensions::class,
+        RunBootstrapsFromConfig::class,
+    ];
+
+    /**
      * Create a new steak application.
      *
      * @param string $version
@@ -37,14 +51,14 @@ class Application
      */
     public function __construct($version, Container $container = null)
     {
-        $this->symfony = new SymfonyApplication('Steak', $version);
+        $this->symfony = new SymfonyApplication('RegisterCoreBindings', $version);
         $this->container = $container ?: new Container();
 
         $this->container->instance('app', $this);
 
         $this->configureOutput();
         $this->loadExternalConfig();
-        $this->callBootstrapper();
+        $this->bootstrap();
     }
 
     /**
@@ -110,15 +124,15 @@ class Application
     }
 
     /**
-     * Call `bootstrap()` on the Bootstrapper class specified by config.
+     * Bootstrap the application.
+     *
+     * @return bool
      */
-    protected function callBootstrapper()
+    protected function bootstrap()
     {
-        $container = $this->container;
-
-        $bootstrapClass = $container['config']['bootstrap'];
-
-        $container->make($bootstrapClass)->bootstrap($container);
+        return array_walk($this->bootClasses, function ($bootstrapClass) {
+            $this->container->make($bootstrapClass)->boot($this->container);
+        });
     }
 
     /**
@@ -130,16 +144,25 @@ class Application
     public function commands(array $commands)
     {
         array_walk($commands, function ($commandClass) {
-
-            $command = $this->container->make($commandClass);
-
-            $command->setContainer($this->container);
-
-            $this->symfony->add($command);
-
+            $this->registerCommand($commandClass);
         });
 
         return $this;
+    }
+
+    /**
+     * Register a single command.
+     *
+     * @param string $commandClass
+     * @return \Symfony\Component\Console\Command\Command
+     */
+    public function registerCommand($commandClass)
+    {
+        $command = $this->container->make($commandClass);
+
+        $command->setContainer($this->container);
+
+        return $this->symfony->add($command);
     }
 
     /**
@@ -165,16 +188,14 @@ class Application
     public static function getDefaultConfig()
     {
         return [
-            'bootstrap' => Bootstrapper::class,
             'source' => [
                 'directory' => 'source',
             ],
             'build' => [
                 'directory' => 'build',
-                'cache' => '.blade',
                 'pipeline' => [
                     'skip:_*,node_modules',
-                    'blade',
+                    'compile:php,md',
                 ],
             ],
             'gulp' => [

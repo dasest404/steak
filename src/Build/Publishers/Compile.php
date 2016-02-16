@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsnick\Steak\Publishers;
+namespace Parsnick\Steak\Build\Publishers;
 
 use Closure;
 use Illuminate\Filesystem\Filesystem;
@@ -9,24 +9,28 @@ use Illuminate\View\Factory;
 use Illuminate\View\View;
 use Parsnick\Steak\Source;
 
-class CompileBlade extends Writer
+class Compile
 {
+    /**
+     * @var Filesystem
+     */
+    protected $files;
+
     /**
      * @var EngineInterface
      */
     protected $factory;
 
     /**
-     * Create a new CompileBlade publisher.
+     * Create a new Compile publisher.
      *
      * @param Filesystem $files
      * @param Factory $factory
      */
     public function __construct(Filesystem $files, Factory $factory)
     {
+        $this->files = $files;
         $this->factory = $factory;
-
-        parent::__construct($files);
     }
 
     /**
@@ -34,11 +38,12 @@ class CompileBlade extends Writer
      *
      * @param Source $source
      * @param Closure $next
+     * @param array $extensions
      * @return mixed
      */
-    public function publish(Source $source, Closure $next)
+    public function handle(Source $source, Closure $next, ...$extensions)
     {
-        if ($this->isRenderable($source)) {
+        if ($this->isPublishable($source, $extensions)) {
 
             $view = new View(
                 $this->factory,
@@ -61,11 +66,32 @@ class CompileBlade extends Writer
     }
 
     /**
+     * Check if this Source should be published by PHP (or left for gulp)
+     *
      * @param Source $source
+     * @param array $extensions
      * @return bool
      */
-    protected function isRenderable(Source $source)
+    protected function isPublishable(Source $source, array $extensions = ['php'])
     {
-        return $source->getExtension() === 'php';
+        return in_array($source->getExtension(), $extensions);
+    }
+
+    /**
+     * Write file contents, creating any necessary subdirectories.
+     *
+     * @param string $destination
+     * @param string $content
+     * @return bool
+     */
+    protected function write($destination, $content)
+    {
+        $directory = dirname($destination);
+
+        if ( ! $this->files->exists($directory)) {
+            $this->files->makeDirectory($directory, 0755, true);
+        }
+
+        return (bool) $this->files->put($destination, $content);
     }
 }

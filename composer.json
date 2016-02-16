@@ -25,16 +25,17 @@
     "require": {
         "cpliakas/git-wrapper": "^1.6",
         "illuminate/config": "^5.2",
+        "illuminate/container": "^5.2",
         "illuminate/filesystem": "^5.2",
         "illuminate/pipeline": "^5.2",
         "illuminate/view": "^5.2",
+        "mikey179/vfsStream": "^1.6",
         "nesbot/carbon": "^1.21",
         "symfony/console": "^3.0",
         "symfony/debug": "^3.0",
         "symfony/stopwatch": "^3.0"
     },
     "require-dev": {
-        "mikey179/vfsStream": "^1.6",
         "phpspec/phpspec": "^2.4",
         "phpunit/phpunit": "^5.2",
         "raveren/kint": "^1.0"

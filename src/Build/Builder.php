@@ -1,11 +1,12 @@
 <?php
 
-namespace Parsnick\Steak;
+namespace Parsnick\Steak\Build;
 
 use FilesystemIterator;
 use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Pipeline\Pipeline;
+use Parsnick\Steak\Source;
 use SplFileInfo;
 
 class Builder
@@ -86,7 +87,6 @@ class Builder
     {
         return (new Pipeline($this->app))
             ->send($source)
-            ->via('publish')
             ->through($this->publishers)
             ->then(function (Source $source) {
                 if ($source->isDir()) {

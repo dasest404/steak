@@ -4,7 +4,7 @@ namespace Parsnick\Steak\Console;
 
 use Closure;
 use Illuminate\Filesystem\Filesystem;
-use Parsnick\Steak\Builder;
+use Parsnick\Steak\Build\Builder;
 use Parsnick\Steak\Cleaner;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
