@@ -29,6 +29,7 @@
         "illuminate/filesystem": "^5.2",
         "illuminate/pipeline": "^5.2",
         "illuminate/view": "^5.2",
+        "michelf/php-markdown": "^1.6",
         "mikey179/vfsStream": "^1.6",
         "nesbot/carbon": "^1.21",
         "symfony/console": "^3.0",

@@ -3,6 +3,7 @@
 namespace Parsnick\Steak\View\Compilers;
 
 use Illuminate\View\Compilers\CompilerInterface;
+use Michelf\MarkdownExtra;
 use Parsnick\Steak\View\InMemoryCompiler;
 
 class Markdown extends InMemoryCompiler implements CompilerInterface
@@ -15,6 +16,6 @@ class Markdown extends InMemoryCompiler implements CompilerInterface
      */
     public function compileString($string)
     {
-        return "this needs to be marked down: {$string}";
+        return MarkdownExtra::defaultTransform($string);
     }
 }
