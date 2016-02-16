@@ -39,7 +39,7 @@ class RegisterBladeExtensions implements Bootable
 
         $compiler->directive('endhighlight', function () {
             return <<<'HTML'
-<?php $last = $__env->stopSection(); echo '<pre><code class="language-', $last, '">', $__env->yieldContent($last), '</code></pre>'; ?>
+<?php $last = $__env->stopSection(); echo '<pre><code class="language-', $last, '">', trim($__env->yieldContent($last)), '</code></pre>'; ?>
 HTML;
         });
     }
