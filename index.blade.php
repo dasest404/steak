@@ -27,7 +27,7 @@
 
             <ol class="ui list">
                 <li>
-                    <code>parsnick/steak</code> as a <code>devDependency</code> in your <code>composer.json</code>, and
+                    <code>parsnick/steak</code> as a dev dependency in <code>composer.json</code>, and
                 </li>
                 <li>
                     a <code>steak.yml</code> configuration file
@@ -53,7 +53,7 @@
                         <i class="dollar icon"></i>
                         <code>steak serve</code>
                     </div>
-                    start a local development server to make changes
+                    start a local development server to make and view changes
                 </div>
                 <div class="item">
                     <div class="ui right pointing horizontal label">
@@ -203,39 +203,90 @@ build: { directory: output }
 
             <p>
                 Some tasks just aren't well suited to <span class="acronym">PHP</span>, and for those
-                we defer to gulp.
+                we can defer to gulp.
             </p>
 
+            <div class="ui secondary inverted segment">
+                <h3 class="ui header">
+                    <i class="configure icon"></i>
+                    <div class="content">
+                        refactor required
+                    </div>
+                </h3>
+                <p>
+                    There's currently a hard dependency on gulp with <code>steak:build</code> and <code>steak:serve</code>
+                    as required tasks in your source's gulpfile.
+                </p>
+            </div>
+
+            @highlight
+            // todo - the rest of these docs...
+            @endhighlight
+
+        </div>
+    </div>
+
+    <div class="ui vertical segment">
+
+        <div class="ui text container">
+
+            <div class="ui big header">So what exactly <em>is</em> <code>steak</code>?</div>
+
+            <div class="ui dividing sub header">1) a git wrapper</div>
+
+            <p>
+                <code>steak pull</code> and <code>steak deploy</code> provide convenient aliases
+                for cloning your project's site
+                sources<span class="help popup" data-content="(if not kept in the main project repository)">*</span>
+                and pushing the latest build respectively.
+                And by specifying the relevant branches/repositories in a tracked <code>steak.yml</code>
+                configuration file, you can cut down on documenting how to contribute to the documentation.
+            </p>
+
+            <div class="ui dividing sub header">2) <span class="acronym">PHP</span> and gulp build system</div>
+
+            <p>
+                <code>steak build</code> takes a set of PHP files and runs them through a simple
+                but customisable build pipeline. In addition, it executes a <code>gulp steak:build</code> command
+                (soon to be an arbitrary build command) to copy across any static assets, compile
+                <span class="acronym">SASS</span>, or whatever else you may need.
+            </p>
+
+            <div class="ui big header">And what steak is <em>not</em></div>
+            <p>
+                Behind the scenes, steak uses the <a href="https://github.com/illuminate/view">View</a> component from
+                Laravel. It comes pre-configured with the <a href="https://laravel.com/docs/5.2/blade">Blade</a> templating
+                engine and a <a href="https://github.com/michelf/php-markdown">Markdown engine</a> to get you started.
+                The real aim of <code>steak</code> - however - is not so much a complete publishing solution akin to Jekyll,
+                but rather providing a way of generating a static site for your project using your preferred tools and
+                existing knowledge.
+            </p>
         </div>
 
     </div>
 
+    <div class="ui inverted vertical footer segment">
+        <div class="ui container">
+
+            <a href="https://github.com/parsnick/steak" class="ui inverted large right floated button">
+                <i class="github icon"></i>
+                View on GitHub
+            </a>
+
+            <div class="ui large inverted horizontal divided link list">
+                <a class="active item">Overview</a>
+                <a href="quick-start.html" class="item">Quick start</a>
+                <a href="configuration.html" class="item">Configuration</a>
+                <a href="extending-steak.html" class="item">Extending steak</a>
+            </div>
+
+        </div>
+    </div>
 @stop
 
 
 
 
 @push('scripts')
-<script>
-    $(document)
-        .ready(function() {
 
-            // fix main menu to page on passing
-            $('.main.menu').visibility({
-                type: 'fixed'
-            });
-            $('.overlay').visibility({
-                type: 'fixed',
-                offset: 80
-            });
-
-            // show dropdown on hover
-            $('.main.menu  .ui.dropdown').dropdown({
-                on: 'hover'
-            });
-
-            $('.help.popup').popup();
-        })
-    ;
-</script>
 @endpush

@@ -19,6 +19,13 @@
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <script src="vendor/all.js"></script>
+    <script>
+        $(document)
+                .ready(function() {
+                    $('.help.popup').popup();
+                })
+        ;
+    </script>
     @stack('scripts')
 </body>
 </html>

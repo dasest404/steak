@@ -27,10 +27,10 @@ var PATTERNS = {
         './!(node_modules|_*){/**/[^_]*,}',
         '!package.json',
         '!gulpfile.js',
-        '!**/*.php',
+        '!**/*.{php,md}',
         '!**/_*/**'
     ],
-    PHP: './!(node_modules){/**/*,}.php',
+    PHP: './!(node_modules){/**/*,}.{php,md}',
     SASS: '_sass/**/*.scss'
 };
 var OUTPUT_DIR = path.join(argv.phpwd || '.', argv.dest);
